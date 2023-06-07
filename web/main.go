@@ -12,29 +12,30 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type User struct {
-	ID       int    `json:"id"`
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Password string `json:"-"`
+	ID       uuid.UUID `json:"id"`
+	Name     string    `json:"name"`
+	Email    string    `json:"email"`
+	Password string    `json:"-"`
 }
 
 type ChatRoom struct {
-	ID    int      `json:"id"`
-	Name  string   `json:"name"`
-	Users []string `json:"users"`
+	ID    uuid.UUID `json:"id"`
+	Name  string    `json:"name"`
+	Users []string  `json:"users"`
 }
 
 type Message struct {
-	ID        int    `json:"id"`
-	Text      string `json:"text"`
-	SenderID  int    `json:"sender_id"`
-	RoomID    int    `json:"room_id"`
-	CreatedAt string `json:"created_at"`
+	ID        uuid.UUID `json:"id"`
+	Text      string    `json:"text"`
+	SenderID  uuid.UUID `json:"sender_id"`
+	RoomID    uuid.UUID `json:"room_id"`
+	CreatedAt string    `json:"created_at"`
 }
 
 var db *sql.DB
@@ -69,7 +70,9 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, err := db.Exec("INSERT INTO users (name, email, password) VALUES (?, ?, ?)", user.Name, user.Email, string(hashedPassword)); err != nil {
+	user.ID = uuid.New()
+
+	if _, err := db.Exec("INSERT INTO users (id, name, email, password) VALUES (?, ?, ?, ?)", user.ID.String(), user.Name, user.Email, string(hashedPassword)); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -98,7 +101,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 
 	expirationTime := time.Now().Add(tokenDuration)
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"id":    storedUser.ID,
+		"id":    storedUser.ID.String(),
 		"name":  storedUser.Name,
 		"email": storedUser.Email,
 		"exp":   expirationTime.Unix(),
@@ -117,6 +120,7 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 	tokenString := extractTokenFromRequest(r)
 
 	if _, err := db.Exec("INSERT INTO revoked_tokens (token) VALUES (?)", tokenString); err != nil {
+		log.Println(err)
 		http.Error(w, "Failed to revoke token", http.StatusInternalServerError)
 		return
 	}
@@ -152,7 +156,7 @@ func tokenVerificationMiddleware(next http.Handler) http.Handler {
 			// Create a new token for the user with a new expiration time
 			expirationTime := time.Now().Add(tokenDuration)
 			newToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-				"id":    (*claims)["id"].(float64),
+				"id":    (*claims)["id"].(string),
 				"name":  (*claims)["name"].(string),
 				"email": (*claims)["email"].(string),
 				"exp":   expirationTime.Unix(),
@@ -189,6 +193,8 @@ func createChatRoomHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	chatRoom.ID = uuid.New()
+
 	// Check if chat room with the same name exists
 	var existingRoom ChatRoom
 	err := db.QueryRow("SELECT id, name FROM chatrooms WHERE name = ?", chatRoom.Name).Scan(&existingRoom.ID, &existingRoom.Name)
@@ -201,19 +207,11 @@ func createChatRoomHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res, err := db.Exec("INSERT INTO chatrooms (name) VALUES (?)", chatRoom.Name)
+	_, err = db.Exec("INSERT INTO chatrooms (id, name) VALUES (?, ?)", chatRoom.ID.String(), chatRoom.Name)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
-	id, err := res.LastInsertId()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	chatRoom.ID = int(id)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
@@ -294,6 +292,7 @@ func assignUserToChatRoom(w http.ResponseWriter, r *http.Request) {
 	_, err := db.Exec("INSERT INTO room_user (room_id, user_id) VALUES (?, ?)", roomID, userID)
 	if err != nil {
 		http.Error(w, "Failed to assign user to chatroom", http.StatusInternalServerError)
+		log.Println(err)
 		return
 	}
 
@@ -309,7 +308,9 @@ func sendMessageHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err := db.Exec("INSERT INTO messages (text, sender_id, room_id, created_at) VALUES (?, ?, ?, ?)", message.Text, message.SenderID, message.RoomID, time.Now())
+	message.ID = uuid.New()
+
+	_, err := db.Exec("INSERT INTO messages (id, text, sender_id, room_id, created_at) VALUES (?, ?, ?, ?, ?)", message.ID.String(), message.Text, message.SenderID.String(), message.RoomID.String(), time.Now())
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "Failed to send message", http.StatusInternalServerError)
