@@ -30,11 +30,11 @@ type ChatRoom struct {
 }
 
 type Message struct {
-	ID        int       `json:"id"`
-	Text      string    `json:"text"`
-	SenderID  int       `json:"sender_id"`
-	RoomID    int       `json:"room_id"`
-	CreatedAt time.Time `json:"created_at"`
+	ID        int    `json:"id"`
+	Text      string `json:"text"`
+	SenderID  int    `json:"sender_id"`
+	RoomID    int    `json:"room_id"`
+	CreatedAt string `json:"created_at"`
 }
 
 var db *sql.DB
@@ -333,7 +333,7 @@ func chatRoomMessagesHandler(w http.ResponseWriter, r *http.Request) {
 	for rows.Next() {
 		var message Message
 		if err := rows.Scan(&message.ID, &message.Text, &message.SenderID, &message.RoomID, &message.CreatedAt); err != nil {
-			http.Error(w, "Failed to retrieve message", http.StatusInternalServerError)
+			http.Error(w, "Failed to retrieve message: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
 
