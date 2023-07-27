@@ -1,8 +1,8 @@
 package service
 
 import (
-	"github.com/yourapp/models"
-	"github.com/yourapp/db"
+	"github.com/Hammad887/chatapp/tree/domain/models"
+	"github.com/Hammad887/chatapp/tree/domain/db"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
