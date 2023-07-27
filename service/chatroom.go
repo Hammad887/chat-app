@@ -1,8 +1,8 @@
 package service
 
 import (
-	"github.com/Hammad887/chatapp/tree/domain/models"
-	"github.com/Hammad887/chatapp/tree/domain/db"
+	"github.com/Hammad887/chatapp/models"
+	"github.com/Hammad887/chatapp/db"
 	"github.com/google/uuid"
 )
 
