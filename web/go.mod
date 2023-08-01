@@ -1,4 +1,4 @@
-module github.com/your-username/chat-app
+module github.com/Hammad887/chat-app
 
 go 1.20
 
