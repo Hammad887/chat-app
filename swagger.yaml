@@ -1,0 +1,363 @@
+swagger: "2.0"
+info:
+  version: "0.0.1"
+  title: "Chatroom"
+host: "localhost:8080"
+basePath: "/v1"
+schemes:
+  - "http"
+consumes:
+  -  "application/json"
+produces:
+  - "application/json"
+securityDefinitions:
+  Bearer:
+    type: apiKey
+    name: Authorization
+    in: header
+paths:
+  /login:
+    post:
+      description: 'Returns token for authorized User'
+      tags: 
+        - service
+      operationId: Login
+      consumes:
+        - "application/json"
+      parameters:
+        - name: 'login'
+          in: 'body'
+          required: true
+          description: 'Login Payload'
+          schema:
+            $ref: '#/definitions/LoginInfo'
+      responses:
+        200:
+          description: Successful login
+          schema:
+            $ref: '#/definitions/LoginSuccess'
+        400:
+          description: Bad Request
+        404:
+          schema:
+            type: string
+          description: User not found
+        500:
+          schema:
+            type: string
+          description: Server error
+
+  /logout:
+    post:
+      operationId: 'Logout'
+      description: 'logout a user'
+      tags:
+        - service
+      parameters:
+        - name: 'logout'
+          in: body
+          schema:
+            $ref: '#/definitions/Token'
+      responses:
+        200:
+          description: Successful logout
+          schema:
+            $ref: '#/definitions/LogoutSuccess'
+        400:
+          description: Bad Request
+        404:
+          schema:
+            type: string
+          description: User not found
+        500:
+          schema:
+            type: string
+          description: Server error
+
+  /chatrooms:
+    get:
+      operationId: "getAllChatrooms"
+      description: "fetch all chatrooms base on filter"
+      tags:
+        - service
+      parameters:
+        - in: query
+          name: limit
+          type: integer
+          minimum: 1
+        - in: query
+          name: name
+          type: string
+      responses:
+        200:
+          description: "successfully save user object into database"
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Chatroom'
+        204:
+          description: "no content in database"
+        401:
+          $ref: '#/responses/401'
+        404:
+          $ref: '#/responses/404'
+        default:
+          $ref: '#/responses/500'
+  /chatrooms/{chatroom_id}:
+    get:
+      operationId: "getChatroom"
+      description: "get chatroom base on id"
+      tags:
+        - service
+      parameters:
+        - in: path
+          name: chatroom_id
+          required: true
+          type: string
+      responses:
+        200:
+          description: "successfully save user object into database"
+          schema:
+            $ref: '#/definitions/Chatroom'
+        401:
+          $ref: '#/responses/401'
+        404:
+          $ref: '#/responses/404'
+        default:
+          $ref: '#/responses/500'
+
+  /chatrooms/{chatroom_id}/messages:
+    post:
+      operationId: "sendMessage"
+      description: "send message to chatroom"
+      tags:
+        - service
+      parameters:
+        - in: body
+          name: message
+          required: true
+          schema:
+            $ref: '#/definitions/message'
+        - in: path
+          name: chatroom_id
+          required: true
+          type: string
+      responses:
+        201:
+          description: "successfully save user object into database"
+          schema:
+            $ref: '#/definitions/SuccessResponse'
+        401:
+          $ref: '#/responses/401'
+        409:
+          $ref: '#/responses/409'
+        default:
+          $ref: '#/responses/500'
+    get:
+      operationId: "getAllMessages"
+      description: "fetch all messages in chatroom"
+      tags:
+        - service
+      parameters:
+        - in: path
+          name: chatroom_id
+          required: true
+          type: string
+      responses:
+        200:
+          description: "successfully save user object into database"
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/message'
+        204:
+          description: "no content in database"
+        401:
+          $ref: '#/responses/401'
+        404:
+          $ref: '#/responses/404'
+        default:
+          $ref: '#/responses/500'
+          
+  /user:
+    post:
+      operationId: "registerUser"
+      description: "register new user to database"
+      tags:
+        - service
+      parameters:
+        - in: body
+          name: user
+          required: true
+          schema:
+            $ref: '#/definitions/user'
+      responses:
+        201:
+          description: "successfully save user object into database"
+          schema:
+            $ref: '#/definitions/SuccessResponse'
+        401:
+          $ref: '#/responses/401'
+        409:
+          $ref: '#/responses/409'
+        default:
+          $ref: '#/responses/500'
+
+definitions:
+  SuccessResponse:
+    type: object
+    properties:
+      success:
+        type: boolean
+      message:
+        type: string
+  Chatroom:
+    type: object
+    required:
+      - id
+      - name
+      - users
+    properties:
+      id:
+        type: string
+        # format: uuid
+      name:
+        type: string
+      users:
+        type: array
+        items:
+          type: string
+
+  ArrayOfMessages:
+    type: array
+    items:
+      $ref: '#/definitions/message'
+      
+  message:
+    type: object
+    required:
+      - text
+      - sender_id
+      - room_id
+    properties:
+      id:
+        type: string
+        # format: uuid
+      text:
+        type: string
+      sender_id:
+        type: string
+        # format: uuid
+      room_id:
+        type: string
+        # format: uuid
+      created_at:
+        type: string
+        # format: date
+
+  Token:
+    type: object
+    required: [token]
+    properties:
+      token:
+        type: string
+  LoginInfo:
+    type: object
+    required: [email,password]
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+  LoginSuccess:
+    type: object
+    properties:
+      success:
+        type: boolean
+      token:
+        type: string
+  LogoutSuccess:
+    type: object
+    properties:
+      success:
+        type: boolean
+      token:
+        type: string
+  user:
+    type: object
+    required:
+      - name
+      - password
+      - email
+    properties:
+      name:
+        type: string
+        minLength: 3
+        maxLength: 32
+      email:
+        type: string
+        format: email
+      password:
+        type: string
+  user_response:
+    type: object
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      email:
+        type: string
+      address:
+        type: string
+      created_at:
+        type: string
+
+  update_user:
+    type: object
+    properties:
+      name:
+        type: string
+        minLength: 3
+        maxLength: 32
+      address:
+        type: string
+
+  error:
+    type: object
+    required:
+      - code
+      - message
+    properties:
+      code:
+        type: string
+        example: error code
+      message:
+        type: string
+        example: error message
+
+responses:
+  400:
+    description: Bad Request
+    schema:
+      $ref: '#/definitions/error'
+  401:
+    description: Unauthorized
+    schema:
+      $ref: '#/definitions/error'
+  403:
+    description: Forbidden
+    schema:
+      $ref: '#/definitions/error'
+  404:
+    description: Not Found
+    schema:
+      $ref: '#/definitions/error'
+  409:
+    description: Conflict
+    schema:
+      $ref: '#/definitions/error'
+  500:
+    description: Internal Server Error
+    schema:
+      $ref: '#/definitions/error'
