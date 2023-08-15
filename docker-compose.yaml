@@ -1,0 +1,51 @@
+version: "3.8"
+services:
+  db:
+    container_name: db
+    image: mysql:latest
+    # networks:
+    #   - default
+    restart: always
+    ports:
+      - "3307:3306"
+    volumes:
+      - /var/lib/mysql:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: "password"
+      MYSQL_DATABASE: "chatapp"
+      MYSQL_USER: "newuser"
+      MYSQL_PASSWORD: "password"
+      MYSQL_ROOT_HOST: '%' 
+      # MYSQL_DB_HOSTS: mysql:3306
+      # MYSQL_DB_NAME: userdb
+      # MYSQL_DB_USERNAME: root
+      # MYSQL_DB_PASSWORD: password
+    # command: --default-authentication-plugin=mysql_native_password
+
+  chatroom_app:
+    build: .
+    container_name: chatroom_app
+    depends_on:
+      - db
+    environment:
+      HOST: 0.0.0.0
+      PORT: 8080
+      # MYSQL_DB_HOSTS: mysql:3306
+      # MYSQL_DB_NAME: userdb
+      # MYSQL_DB_USERNAME: root
+      # MYSQL_DB_PASSWORD: password
+    image: ham_dev:latest
+    ports:
+      - "8000:8080"
+    links:
+      - "db:database"
+
+  swagger-ui:
+    image: swaggerapi/swagger-ui
+    container_name: "swagger-ui"
+    ports:
+      - "8001:8080"
+    volumes:
+      - ./swagger.yaml:/swagger.yaml
+    environment:
+      SWAGGER_JSON: /swagger.yaml
