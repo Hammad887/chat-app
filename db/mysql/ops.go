@@ -11,10 +11,11 @@ import (
 	"strings"
 	"time"
 
-	domain "github.com/Hammad887/chat-app/models"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
+
+	domain "github.com/Hammad887/chat-app/models"
 )
 
 func (c *client) RegisterUser(ctx context.Context, user *domain.User) (bool, error) {
@@ -28,14 +29,13 @@ func (c *client) RegisterUser(ctx context.Context, user *domain.User) (bool, err
 
 	if _, err := c.dbc.Exec("INSERT INTO users (id, name, email, password) VALUES (?, ?, ?, ?)", user.ID, user.Name, user.Email, string(hashedPassword)); err != nil {
 		return false, err
-
 	}
 
 	// createChatRoom()
 	return true, nil
 }
 
-func (c *client) SendMessage(ctx context.Context, id string, message *domain.Message) (bool, error) {
+func (c *client) SendMessage(ctx context.Context, id string, message *domain.Message) error {
 
 	message.ID = uuid.New().String()
 
@@ -44,17 +44,14 @@ func (c *client) SendMessage(ctx context.Context, id string, message *domain.Mes
 	_, err := c.dbc.Exec("INSERT INTO messages (id, text, sender_id, room_id, created_at) VALUES (?, ?, ?, ?, ?)", message.ID, message.Text, message.SenderID, message.RoomID, time.Now())
 	if err != nil {
 		log.Println(err)
-		return false, err
+		return err
 	}
-	return true, nil
+
+	return nil
 }
 
 func (c *client) assignUserToChatRoom(user *domain.User, chatroom *domain.ChatRoom) error {
-	// vars := mux.Vars(r)
-	roomID := chatroom.ID
-	userID := user.ID
-
-	_, err := c.dbc.Exec("INSERT INTO room_user (room_id, user_id) VALUES (?, ?)", roomID, userID)
+	_, err := c.dbc.Exec("INSERT INTO room_user (room_id, user_id) VALUES (?, ?)", chatroom.ID, user.ID)
 	if err != nil {
 		log.Println(err)
 		return err

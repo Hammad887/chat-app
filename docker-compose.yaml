@@ -16,11 +16,6 @@ services:
       MYSQL_USER: "newuser"
       MYSQL_PASSWORD: "password"
       MYSQL_ROOT_HOST: '%' 
-      # MYSQL_DB_HOSTS: mysql:3306
-      # MYSQL_DB_NAME: userdb
-      # MYSQL_DB_USERNAME: root
-      # MYSQL_DB_PASSWORD: password
-    # command: --default-authentication-plugin=mysql_native_password
 
   chatroom_app:
     build: .

@@ -7,10 +7,6 @@ tmp/dev_image_id:
 	@docker build -t ${DEV_IMAGE} -f Dockerfile.dev .
 	@docker inspect -f "{{ .ID }}" ${DEV_IMAGE} > tmp/dev_image_id
 
-clean:
-	@${DOCKRUN} bash -c 'rm -rf bin tmp vendor'
-vendor: tmp/vendor-installed
-vendor: tmp/vendor-installed
 tmp/vendor-installed: tmp/dev_image_id go.mod
 	@mkdir -p vendor
 	${DOCKRUN} go mod tidy
@@ -45,3 +41,4 @@ help:
 	@echo '  prepare         		build dev container'
 	@echo '  clean       			remove dev temp folder'
 	@echo
+	

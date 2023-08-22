@@ -1,7 +1,4 @@
 export PROJECT = chat-app
-IMPORT_PATH = github.com/Hammad887/${PROJECT}
-
-MYSQL_DB_CNT_ID ?=
 
 # all non-windows environments
 ROOT := $(shell pwd)
@@ -12,3 +9,4 @@ DOCKERRUN := docker run --rm \
 	-v ${ROOT}:/usr/src/${PROJECT} \
 	-w /usr/src/${PROJECT} \
 	${DEV_IMAGE}
+	

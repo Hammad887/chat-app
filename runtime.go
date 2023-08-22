@@ -1,11 +1,13 @@
 package runtime
 
 import (
-	"github.com/Hammad887/chat-app/db/mysql"
-	wraperrors "github.com/pkg/errors"
-
+	// Internal packages
 	"github.com/Hammad887/chat-app/db"
+	"github.com/Hammad887/chat-app/db/mysql"
 	"github.com/Hammad887/chat-app/service"
+
+	// External package
+	wraperrors "github.com/pkg/errors"
 )
 
 // Runtime initializes values for entry point to our application

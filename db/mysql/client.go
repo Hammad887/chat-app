@@ -25,18 +25,11 @@ func NewClient(option db.Option) (db.DataStore, error) {
 	password := viper.GetString(config.MySQLDBPassword)
 	hostname := viper.GetString(config.MySQLDBHost)
 	dbName := viper.GetString(config.MySQLDBName)
-	// username := "hammad"
-	// password := "Hammad_887"
-	// hostname := "127.0.0.1:3306"
-	// dbName := "chatapp"
 
 	fmt.Println(dsn(username, password, hostname, dbName))
 
-	// dbClient, err := sql.Open("mysql", "abc:password@tcp(db:3306)/test_database")
+	dbClient, err := sql.Open("mysql", dsn(username, password, hostname, dbName))
 
-	dbClient, err := sql.Open("mysql", "hammad:Hammad_887@tcp(localhost:3306)/chatapp")
-
-	// dbClient, err := sql.Open("mysql", "newuser:password@tcp(db:3306)/chatapp")
 	if err != nil {
 		return nil, wraperrors.Wrap(err, "unable to connect to database")
 	}

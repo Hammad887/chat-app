@@ -25,6 +25,7 @@ func init() {
 	if err != nil {
 		fmt.Printf("Error reading config file: %s\n", err)
 	}
+
 	// env var for db
 	_ = viper.BindEnv(MySQLDBHost, "MYSQL_DB_HOSTS")
 	_ = viper.BindEnv(MySQLDBUsername, "MYSQL_DB_USERNAME")

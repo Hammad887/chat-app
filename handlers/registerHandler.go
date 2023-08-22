@@ -10,6 +10,7 @@ import (
 	genModel "github.com/Hammad887/chat-app/docs/models"
 	"github.com/Hammad887/chat-app/docs/restapi/operations/service"
 	domainErr "github.com/Hammad887/chat-app/errors"
+	domain "github.com/Hammad887/chat-app/models"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
 )
@@ -24,7 +25,7 @@ func (r *registerUser) Handle(params service.RegisterUserParams) middleware.Resp
 
 	user := params.User
 
-	success, err := r.rt.Service().RegisterUser(context.Background(), &genModel.User{
+	success, err := r.rt.Service().RegisterUser(context.Background(), &domain.User{
 		Name:     user.Name,
 		Email:    user.Email,
 		Password: user.Password,
