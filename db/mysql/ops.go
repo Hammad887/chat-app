@@ -57,7 +57,7 @@ func (c *client) assignUserToChatRoom(user *domain.User, chatroom *domain.ChatRo
 	return nil
 }
 
-func (c *client) GetChatrooms(ctx context.Context) ([]*domain.ChatRoom, error) {
+func (c *client) ListChatRoom(ctx context.Context) ([]*domain.ChatRoom, error) {
 	rows, err := c.dbc.Query("SELECT id, name FROM chatrooms")
 	if err != nil {
 		return nil, nil

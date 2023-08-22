@@ -28,9 +28,9 @@ func (s *service) GetChatroomMessages(ctx context.Context, id string) ([]*models
 	return messages, nil
 }
 
-// GetChatrooms implements Manager.
-func (s *service) GetChatrooms(ctx context.Context) ([]*models.ChatRoom, error) {
-	chatrooms, err := s.db.GetChatrooms(ctx)
+// ListChatRoom implements Manager.
+func (s *service) ListChatRoom(ctx context.Context) ([]*models.ChatRoom, error) {
+	chatrooms, err := s.db.ListChatRoom(ctx)
 	if err != nil {
 		return nil, wraperrors.Wrap(err, "failed to find user with given id")
 	}

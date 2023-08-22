@@ -14,14 +14,14 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-type getChatrooms struct {
+type ListChatRoom struct {
 	rt *runtime.Runtime
 }
 
 // Handle implements service.RegisterUserHandler.
-func (r *getChatrooms) Handle(params service.GetAllChatroomsParams) middleware.Responder {
+func (r *ListChatRoom) Handle(params service.GetAllChatroomsParams) middleware.Responder {
 	ctx := context.Background()
-	chatrooms, err := r.rt.Service().GetChatrooms(ctx)
+	chatrooms, err := r.rt.Service().ListChatRoom(ctx)
 	if errors.Is(err, domainErr.ErrConflict) {
 		log(context.Background()).Errorf("user with given email is already exist in database", err)
 
@@ -44,5 +44,5 @@ func (r *getChatrooms) Handle(params service.GetAllChatroomsParams) middleware.R
 }
 
 func GetAllChatroomsHandler(rt *runtime.Runtime) service.GetAllChatroomsHandler {
-	return &getChatrooms{rt: rt}
+	return &ListChatRoom{rt: rt}
 }
