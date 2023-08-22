@@ -7,9 +7,9 @@ import (
 	"net/http"
 
 	runtime "github.com/Hammad887/chat-app"
-	genModel "github.com/Hammad887/chat-app/docs/models"
-	"github.com/Hammad887/chat-app/docs/restapi/operations/service"
 	domainErr "github.com/Hammad887/chat-app/errors"
+	docsModel "github.com/Hammad887/chat-app/gen/models"
+	"github.com/Hammad887/chat-app/gen/restapi/operations/service"
 	domain "github.com/Hammad887/chat-app/models"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
@@ -26,28 +26,28 @@ func (r *registerUser) Handle(params service.RegisterUserParams) middleware.Resp
 	user := params.User
 
 	success, err := r.rt.Service().RegisterUser(context.Background(), &domain.User{
-		Name:     user.Name,
-		Email:    user.Email,
-		Password: user.Password,
+		Name:     *user.Name,
+		Email:    user.Email.String(),
+		Password: *user.Password,
 	})
 	if errors.Is(err, domainErr.ErrConflict) {
 		log(context.Background()).Errorf("user with given email is already exist in database", err)
 
-		return service.NewRegisterUserConflict().WithPayload(&genModel.Error{
+		return service.NewRegisterUserConflict().WithPayload(&docsModel.Error{
 			Code:    swag.String(fmt.Sprintf("%v", http.StatusConflict)),
 			Message: swag.String(err.Error()),
 		})
 	} else if err != nil {
 		log(ctx).Errorf("failed to register new user", err)
 
-		return service.NewRegisterUserDefault(http.StatusInternalServerError).WithPayload(&genModel.Error{
+		return service.NewRegisterUserDefault(http.StatusInternalServerError).WithPayload(&docsModel.Error{
 			Code:    swag.String(fmt.Sprintf("%v", http.StatusInternalServerError)),
 			Message: swag.String(err.Error()),
 		})
 	}
 
 	log(ctx).Infof("created user %v", success)
-	return service.NewRegisterUserCreated().WithPayload(&genModel.SuccessResponse{
+	return service.NewRegisterUserCreated().WithPayload(&docsModel.SuccessResponse{
 		Success: success,
 	})
 

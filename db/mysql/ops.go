@@ -4,11 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"fmt"
 	"log"
-	"net/http"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -60,24 +57,24 @@ func (c *client) assignUserToChatRoom(user *domain.User, chatroom *domain.ChatRo
 	return nil
 }
 
-func (c *client) GetChatrooms(ctx context.Context) (*[]domain.ChatRoom, error) {
+func (c *client) GetChatrooms(ctx context.Context) ([]*domain.ChatRoom, error) {
 	rows, err := c.dbc.Query("SELECT id, name FROM chatrooms")
 	if err != nil {
 		return nil, nil
 	}
 	defer rows.Close()
 
-	chatRooms := make([]domain.ChatRoom, 0)
+	chatRooms := make([]*domain.ChatRoom, 0)
 	for rows.Next() {
 		var chatRoom domain.ChatRoom
 		if err := rows.Scan(&chatRoom.ID, &chatRoom.Name); err != nil {
 			return nil, err
 		}
 
-		chatRooms = append(chatRooms, chatRoom)
+		chatRooms = append(chatRooms, &chatRoom)
 	}
 
-	return &chatRooms, nil
+	return chatRooms, nil
 }
 
 func (c *client) GetChatroom(ctx context.Context, id string) (*domain.ChatRoom, error) {
@@ -160,17 +157,6 @@ const (
 	tokenRefreshLimit = 10 * time.Minute
 )
 
-func extractTokenFromRequest(r *http.Request) string {
-	authHeader := r.Header.Get("Authorization")
-	if authHeader != "" {
-		splitToken := strings.Split(authHeader, "Bearer ")
-		if len(splitToken) == 2 {
-			return splitToken[1]
-		}
-	}
-	return ""
-}
-
 func (c *client) LoginUser(ctx context.Context, email string, password string) (string, error) {
 	var storedUser domain.User
 	if err := c.dbc.QueryRow("SELECT id, name, email, password FROM users WHERE email = ?", email).Scan(&storedUser.ID, &storedUser.Name, &storedUser.Email, &storedUser.Password); err != nil {
@@ -196,58 +182,6 @@ func (c *client) LoginUser(ctx context.Context, email string, password string) (
 	}
 
 	return tokenString, nil
-}
-
-func tokenVerificationMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		tokenString := extractTokenFromRequest(r)
-
-		claims := &jwt.MapClaims{}
-		token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-			if jwt.SigningMethodHS256 != token.Method {
-				return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
-			}
-			return jwtKey, nil
-		})
-
-		if err != nil || !token.Valid {
-			http.Error(w, "Invalid token", http.StatusUnauthorized)
-			return
-		}
-
-		// Check if token is expired
-		if exp, ok := (*claims)["exp"].(float64); !ok || time.Now().Unix() > int64(exp) {
-			http.Error(w, "Expired token", http.StatusUnauthorized)
-			return
-		}
-
-		// Check if token is close to its expiration time (less than 5 minutes left)
-		if exp, ok := (*claims)["exp"].(float64); ok && time.Unix(int64(exp), 0).Sub(time.Now()) < tokenRefreshLimit {
-			// Create a new token for the user with a new expiration time
-			expirationTime := time.Now().Add(tokenDuration)
-			newToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-				"id":    (*claims)["id"].(string),
-				"name":  (*claims)["name"].(string),
-				"email": (*claims)["email"].(string),
-				"exp":   expirationTime.Unix(),
-			})
-
-			newTokenString, err := newToken.SignedString(jwtKey)
-			if err != nil {
-				http.Error(w, "Failed to generate new token", http.StatusInternalServerError)
-				return
-			}
-
-			// Set new token as a cookie
-			http.SetCookie(w, &http.Cookie{
-				Name:    "token",
-				Value:   newTokenString,
-				Expires: expirationTime,
-			})
-		}
-
-		next.ServeHTTP(w, r)
-	})
 }
 
 func (c *client) LogoutUser(ctx context.Context, token string) (bool, error) {

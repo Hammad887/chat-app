@@ -16,7 +16,7 @@ tmp/vendor-installed: tmp/dev_image_id go.mod
 
 format: tmp/vendor-installed
 	${DOCKRUN} bash ./scripts/format.sh
-codegen: prepare
+codedocs: prepare
 	${DOCKRUN} bash ./scripts/swagger.sh
 check: format
 	${DOCKRUN} bash ./scripts/check.sh
@@ -36,7 +36,7 @@ help:
 	@echo '  build           		Compile project.'
 	@echo '  check           		Run linters.'
 	@echo '  format          		Format source code.'
-	@echo '  codegen         		Generate code.'
+	@echo '  codedocs         		docserate code.'
 	@echo '  test            		Run test case'
 	@echo '  prepare         		build dev container'
 	@echo '  clean       			remove dev temp folder'

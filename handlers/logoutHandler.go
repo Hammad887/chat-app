@@ -5,9 +5,9 @@ import (
 	"errors"
 
 	runtime "github.com/Hammad887/chat-app"
-	genModel "github.com/Hammad887/chat-app/docs/models"
-	"github.com/Hammad887/chat-app/docs/restapi/operations/service"
 	domainErr "github.com/Hammad887/chat-app/errors"
+	docsModel "github.com/Hammad887/chat-app/gen/models"
+	"github.com/Hammad887/chat-app/gen/restapi/operations/service"
 	"github.com/go-openapi/runtime/middleware"
 )
 
@@ -33,7 +33,7 @@ func (r *logoutUser) Handle(params service.LogoutParams) middleware.Responder {
 	}
 
 	log(ctx).Infof("got token %v", token)
-	return service.NewLogoutOK().WithPayload(&genModel.LogoutSuccess{
+	return service.NewLogoutOK().WithPayload(&docsModel.LogoutSuccess{
 		Success: success,
 		Token:   *token.Token,
 	})

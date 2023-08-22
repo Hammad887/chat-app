@@ -1,4 +1,4 @@
-package service
+package handlers
 
 import (
 	docsModel "github.com/Hammad887/chat-app/gen/models"
@@ -13,7 +13,7 @@ func asChatroomResponse(chatroom *domain.ChatRoom) *docsModel.Chatroom {
 	}
 }
 
-func asChatroomsResponse(chatrooms []domain.ChatRoom) []*docsModel.Chatroom {
+func asChatroomsResponse(chatrooms []*domain.ChatRoom) []*docsModel.Chatroom {
 	var returnedChatrooms []*docsModel.Chatroom
 
 	for _, chatroom := range chatrooms {

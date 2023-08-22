@@ -5,8 +5,8 @@ import (
 	"github.com/sirupsen/logrus"
 
 	runtime "github.com/Hammad887/chat-app"
-	"github.com/Hammad887/chat-app/docs/restapi"
-	"github.com/Hammad887/chat-app/docs/restapi/operations"
+	"github.com/Hammad887/chat-app/gen/restapi"
+	"github.com/Hammad887/chat-app/gen/restapi/operations"
 	handler "github.com/Hammad887/chat-app/handlers"
 )
 

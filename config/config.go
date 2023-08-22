@@ -1,14 +1,14 @@
 package config
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/spf13/viper"
 )
 
 // keys for database configuration
 const (
-	MySQLDBHost     = "MYSQL_DB_HOSTS"
+	MySQLDBHost     = "MYSQL_DB_HOST"
 	MySQLDBUsername = "MYSQL_DB_USERNAME"
 	MySQLDBPassword = "MYSQL_DB_PASSWORD"
 	MySQLDBName     = "MYSQL_DB_NAME"
@@ -20,10 +20,10 @@ func init() {
 	viper.AutomaticEnv()
 
 	err := viper.ReadInConfig()
-	fmt.Println(viper.AllSettings())
+	log.Println(viper.AllSettings())
 
 	if err != nil {
-		fmt.Printf("Error reading config file: %s\n", err)
+		log.Printf("Error reading config file: %s\n", err)
 	}
 
 	// env var for db

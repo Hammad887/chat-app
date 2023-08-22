@@ -2,7 +2,7 @@ package handlers
 
 import (
 	runtime "github.com/Hammad887/chat-app"
-	"github.com/Hammad887/chat-app/docs/restapi/operations"
+	"github.com/Hammad887/chat-app/gen/restapi/operations"
 )
 
 func NewCustomHandler(api *operations.ChatroomAPI, rt *runtime.Runtime) {
