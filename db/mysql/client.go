@@ -26,8 +26,6 @@ func NewClient(option db.Option) (db.DataStore, error) {
 	hostname := viper.GetString(config.MySQLDBHost)
 	dbName := viper.GetString(config.MySQLDBName)
 
-	fmt.Println(dsn(username, password, hostname, dbName))
-
 	dbClient, err := sql.Open("mysql", dsn(username, password, hostname, dbName))
 
 	if err != nil {

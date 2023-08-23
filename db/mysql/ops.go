@@ -62,6 +62,7 @@ func (c *client) ListChatRoom(ctx context.Context) ([]*domain.ChatRoom, error) {
 	if err != nil {
 		return nil, nil
 	}
+
 	defer rows.Close()
 
 	chatRooms := make([]*domain.ChatRoom, 0)
@@ -87,6 +88,7 @@ func (c *client) GetChatroom(ctx context.Context, id string) (*domain.ChatRoom, 
 	if err != nil {
 		return nil, err
 	}
+
 	defer rows.Close()
 
 	users := make([]string, 0)
@@ -95,6 +97,7 @@ func (c *client) GetChatroom(ctx context.Context, id string) (*domain.ChatRoom, 
 		if err := rows.Scan(&user); err != nil {
 			return nil, err
 		}
+
 		users = append(users, user)
 	}
 
@@ -109,6 +112,7 @@ func (c *client) GetChatroomMessages(ctx context.Context, id string) ([]*domain.
 	if err != nil {
 		return nil, err
 	}
+
 	defer rows.Close()
 
 	messages := make([]*domain.Message, 0)
@@ -117,6 +121,7 @@ func (c *client) GetChatroomMessages(ctx context.Context, id string) ([]*domain.
 		if err := rows.Scan(&message.ID, &message.Text, &message.SenderID, &message.RoomID, &message.CreatedAt); err != nil {
 			return nil, err
 		}
+
 		messages = append(messages, &message)
 	}
 
@@ -138,6 +143,7 @@ func (c *client) createChatRoom(name string) error {
 	if err != nil && err != sql.ErrNoRows {
 		return errors.New("Database error occured")
 	}
+
 	if existingRoom.Name != "" {
 		return errors.New("Chat room with this name already exists")
 	}
