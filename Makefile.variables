@@ -1,0 +1,12 @@
+export PROJECT = chat-app
+
+# all non-windows environments
+ROOT := $(shell pwd)
+
+DEV_IMAGE := ${PROJECT}_dev
+
+DOCKERRUN := docker run --rm \
+	-v ${ROOT}:/usr/src/${PROJECT} \
+	-w /usr/src/${PROJECT} \
+	${DEV_IMAGE}
+	
