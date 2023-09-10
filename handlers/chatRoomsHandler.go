@@ -43,6 +43,7 @@ func (r *ListChatRoom) Handle(params service.GetAllChatroomsParams) middleware.R
 
 }
 
+// GetAllChatroomsHandler returns a handler for retrieving all the chat rooms.
 func GetAllChatroomsHandler(rt *runtime.Runtime) service.GetAllChatroomsHandler {
 	return &ListChatRoom{rt: rt}
 }

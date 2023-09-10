@@ -44,6 +44,7 @@ func (r *getChatroom) Handle(params service.GetChatroomParams) middleware.Respon
 
 }
 
+// GetChatroomHandler returns a handler for retrieving a chat room.
 func GetChatroomHandler(rt *runtime.Runtime) service.GetChatroomHandler {
 	return &getChatroom{rt: rt}
 }

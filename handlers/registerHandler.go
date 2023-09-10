@@ -53,6 +53,7 @@ func (r *registerUser) Handle(params service.RegisterUserParams) middleware.Resp
 
 }
 
+// RegisterUserHandler returns a handler that manages user resistration.
 func RegisterUserHandler(rt *runtime.Runtime) service.RegisterUserHandler {
 	return &registerUser{rt: rt}
 }

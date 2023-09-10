@@ -44,6 +44,7 @@ func (r *getChatroomMessages) Handle(params service.GetAllMessagesParams) middle
 
 }
 
+// GetChatroomMessagesHandler returns a handler for retrieving messages from a chat room.
 func GetChatroomMessagesHandler(rt *runtime.Runtime) service.GetAllMessagesHandler {
 	return &getChatroomMessages{rt: rt}
 }

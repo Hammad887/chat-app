@@ -132,7 +132,7 @@ func (c *client) createChatRoom(name string) error {
 
 	// Ensure chat room name is not blank
 	if name == "" {
-		return errors.New("Chat room name cannot be blank")
+		return errors.New("chat room name cannot be blank")
 	}
 
 	ID := uuid.New().String()
@@ -141,11 +141,11 @@ func (c *client) createChatRoom(name string) error {
 	var existingRoom domain.ChatRoom
 	err := c.dbc.QueryRow("SELECT id, name FROM chatrooms WHERE name = ?", name).Scan(&existingRoom.ID, &existingRoom.Name)
 	if err != nil && err != sql.ErrNoRows {
-		return errors.New("Database error occured")
+		return errors.New("database error occurred")
 	}
 
 	if existingRoom.Name != "" {
-		return errors.New("Chat room with this name already exists")
+		return errors.New("chat room with this name already exists")
 	}
 
 	_, err = c.dbc.Exec("INSERT INTO chatrooms (id, name) VALUES (?, ?)", ID, name)
@@ -159,8 +159,7 @@ func (c *client) createChatRoom(name string) error {
 var jwtKey = []byte(os.Getenv("JWT_SECRET"))
 
 const (
-	tokenDuration     = 60 * time.Minute
-	tokenRefreshLimit = 10 * time.Minute
+	tokenDuration = 60 * time.Minute
 )
 
 func (c *client) LoginUser(ctx context.Context, email string, password string) (string, error) {
