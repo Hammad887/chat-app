@@ -41,9 +41,9 @@ func (r *getChatroom) Handle(params service.GetChatroomParams) middleware.Respon
 
 	log(ctx).Infof("got chatroom id %v", chatroom)
 	return service.NewGetChatroomOK().WithPayload(asChatroomResponse(chatroom))
-
 }
 
+// GetChatroomHandler creates and returns a handler for fetching chat rooms using the provided runtime.
 func GetChatroomHandler(rt *runtime.Runtime) service.GetChatroomHandler {
 	return &getChatroom{rt: rt}
 }

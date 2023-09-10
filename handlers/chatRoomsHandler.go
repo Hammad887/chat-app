@@ -14,6 +14,7 @@ import (
 	"github.com/go-openapi/swag"
 )
 
+// ListChatRoom represents a structure to list all chat rooms.
 type ListChatRoom struct {
 	rt *runtime.Runtime
 }
@@ -40,9 +41,9 @@ func (r *ListChatRoom) Handle(params service.GetAllChatroomsParams) middleware.R
 
 	log(ctx).Infof("got chatrooms %v", chatrooms)
 	return service.NewGetAllChatroomsOK().WithPayload(asChatroomsResponse(chatrooms))
-
 }
 
+// GetAllChatroomsHandler creates and returns a handler for fetching all chat rooms using the provided runtime.
 func GetAllChatroomsHandler(rt *runtime.Runtime) service.GetAllChatroomsHandler {
 	return &ListChatRoom{rt: rt}
 }

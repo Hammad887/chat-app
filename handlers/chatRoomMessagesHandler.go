@@ -41,9 +41,9 @@ func (r *getChatroomMessages) Handle(params service.GetAllMessagesParams) middle
 
 	log(ctx).Infof("got messages %v", messages)
 	return service.NewGetAllMessagesOK().WithPayload(asMessagesResponse(messages))
-
 }
 
+// GetChatroomMessagesHandler creates and returns a handler for fetching all messages from a chatroom using the provided runtime.
 func GetChatroomMessagesHandler(rt *runtime.Runtime) service.GetAllMessagesHandler {
 	return &getChatroomMessages{rt: rt}
 }

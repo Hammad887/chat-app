@@ -5,6 +5,7 @@ import (
 	"github.com/Hammad887/chat-app/gen/restapi/operations"
 )
 
+// NewCustomHandler initializes and returns a new custom handler for the ChatroomAPI using the provided runtime.
 func NewCustomHandler(api *operations.ChatroomAPI, rt *runtime.Runtime) {
 	api.ServiceRegisterUserHandler = RegisterUserHandler(rt)
 	api.ServiceLoginHandler = LoginUserHandler(rt)
@@ -13,5 +14,4 @@ func NewCustomHandler(api *operations.ChatroomAPI, rt *runtime.Runtime) {
 	api.ServiceGetChatroomHandler = GetChatroomHandler(rt)
 	api.ServiceSendMessageHandler = SendMessageHandler(rt)
 	api.ServiceGetAllMessagesHandler = GetChatroomMessagesHandler(rt)
-	// add all new handlers
 }

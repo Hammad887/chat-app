@@ -26,6 +26,7 @@ func (r *registerUser) Handle(params service.RegisterUserParams) middleware.Resp
 	user := params.User
 
 	success, err := r.rt.Service().RegisterUser(context.Background(), &domain.User{
+		ID:       *user.ID,
 		Name:     *user.Name,
 		Email:    user.Email.String(),
 		Password: *user.Password,
@@ -53,6 +54,7 @@ func (r *registerUser) Handle(params service.RegisterUserParams) middleware.Resp
 
 }
 
+// RegisterUserHandler creates and returns a handler for registering users using the provided runtime.
 func RegisterUserHandler(rt *runtime.Runtime) service.RegisterUserHandler {
 	return &registerUser{rt: rt}
 }
