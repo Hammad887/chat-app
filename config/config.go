@@ -19,10 +19,9 @@ func init() {
 	viper.SetConfigFile(".env") // Assuming you're using .env in the root
 	viper.AutomaticEnv()
 
-	err := viper.ReadInConfig()
 	log.Println(viper.AllSettings())
 
-	if err != nil {
+	if err := viper.ReadInConfig(); err != nil {
 		log.Printf("Error reading config file: %s\n", err)
 	}
 

@@ -37,9 +37,9 @@ func (r *logoutUser) Handle(params service.LogoutParams) middleware.Responder {
 		Success: success,
 		Token:   *token.Token,
 	})
-
 }
 
+// LogoutUserHandler returns a handler that manages user logout.
 func LogoutUserHandler(rt *runtime.Runtime) service.LogoutHandler {
 	return &logoutUser{rt: rt}
 }

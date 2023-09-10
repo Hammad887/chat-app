@@ -1,0 +1,7 @@
+vendor/
+tmp/
+bin/
+.env
+.vscode/
+*.exe
+*.exe~

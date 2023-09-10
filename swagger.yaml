@@ -286,10 +286,14 @@ definitions:
   user:
     type: object
     required:
+      - id
       - name
       - password
       - email
     properties:
+      id:
+        type: string
+        # format: uuid
       name:
         type: string
         minLength: 3

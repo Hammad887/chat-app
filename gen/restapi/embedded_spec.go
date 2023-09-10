@@ -464,6 +464,7 @@ func init() {
     "user": {
       "type": "object",
       "required": [
+        "id",
         "name",
         "password",
         "email"
@@ -472,6 +473,9 @@ func init() {
         "email": {
           "type": "string",
           "format": "email"
+        },
+        "id": {
+          "type": "string"
         },
         "name": {
           "type": "string",
@@ -1042,6 +1046,7 @@ func init() {
     "user": {
       "type": "object",
       "required": [
+        "id",
         "name",
         "password",
         "email"
@@ -1050,6 +1055,9 @@ func init() {
         "email": {
           "type": "string",
           "format": "email"
+        },
+        "id": {
+          "type": "string"
         },
         "name": {
           "type": "string",

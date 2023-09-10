@@ -24,6 +24,10 @@ type User struct {
 	// Format: email
 	Email *strfmt.Email `json:"email"`
 
+	// id
+	// Required: true
+	ID *string `json:"id"`
+
 	// name
 	// Required: true
 	// Max Length: 32
@@ -40,6 +44,10 @@ func (m *User) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateEmail(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -64,6 +72,15 @@ func (m *User) validateEmail(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("email", "body", "email", m.Email.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *User) validateID(formats strfmt.Registry) error {
+
+	if err := validate.Required("id", "body", m.ID); err != nil {
 		return err
 	}
 

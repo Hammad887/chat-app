@@ -18,11 +18,15 @@ type Runtime struct {
 
 // NewRuntime creates a new runtime
 func NewRuntime() (*Runtime, error) {
-	client, err := mysql.NewClient(db.Option{})
+	options := db.Option{
+		TestMode: false, // Set the appropriate value for TestMode here
+	}
+
+	client, err := mysql.NewClient(options)
 	if err != nil {
 		return nil, wraperrors.Wrap(err, "failed to connect with database")
 	}
-	return &Runtime{service: service.NewService(&client)}, nil
+	return &Runtime{dbc: client, service: service.NewService(&client)}, nil
 }
 
 // Service return  service layer object

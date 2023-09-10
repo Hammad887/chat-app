@@ -5,8 +5,8 @@ import (
 	"database/sql"
 	"fmt"
 
+	// The following import is required to register the MySQL driver with the database/sql package.
 	_ "github.com/go-sql-driver/mysql"
-	wraperrors "github.com/pkg/errors"
 	"github.com/spf13/viper"
 
 	"github.com/Hammad887/chat-app/config"
@@ -18,7 +18,7 @@ type client struct {
 }
 
 // NewClient creates a configured database client.
-func NewClient(option db.Option) (db.DataStore, error) {
+func NewClient(_ db.Option) (db.DataStore, error) {
 	ctx := context.Background()
 
 	username := viper.GetString(config.MySQLDBUsername)
@@ -29,11 +29,11 @@ func NewClient(option db.Option) (db.DataStore, error) {
 	dbClient, err := sql.Open("mysql", dsn(username, password, hostname, dbName))
 
 	if err != nil {
-		return nil, wraperrors.Wrap(err, "unable to connect to database")
+		return nil, fmt.Errorf("unable to connect to database: %w", err)
 	}
 
 	if err := dbClient.PingContext(ctx); err != nil {
-		return nil, wraperrors.Wrap(err, "unable to ping database")
+		return nil, fmt.Errorf("unable to ping database: %w", err)
 	}
 
 	return &client{dbc: dbClient}, nil

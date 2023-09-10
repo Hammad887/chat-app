@@ -3,7 +3,7 @@ package mysql
 import (
 	"context"
 	"database/sql"
-	"errors"
+	"fmt"
 	"log"
 	"os"
 	"time"
@@ -15,17 +15,21 @@ import (
 	domain "github.com/Hammad887/chat-app/models"
 )
 
-func (c *client) RegisterUser(ctx context.Context, user *domain.User) (bool, error) {
+// generateUserID creates a new UUID for user ID.
+func generateUserID() string {
+	return uuid.New().String()
+}
 
+func (c *client) RegisterUser(ctx context.Context, user *domain.User) (bool, error) {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
-		return false, err
+		return false, fmt.Errorf("failed to hash password: %w", err)
 	}
 
-	user.ID = uuid.New().String()
+	user.ID = generateUserID()
 
 	if _, err := c.dbc.Exec("INSERT INTO users (id, name, email, password) VALUES (?, ?, ?, ?)", user.ID, user.Name, user.Email, string(hashedPassword)); err != nil {
-		return false, err
+		return false, fmt.Errorf("failed to execute database insert: %w", err)
 	}
 
 	// createChatRoom()
@@ -33,7 +37,6 @@ func (c *client) RegisterUser(ctx context.Context, user *domain.User) (bool, err
 }
 
 func (c *client) SendMessage(ctx context.Context, id string, message *domain.Message) error {
-
 	message.ID = uuid.New().String()
 
 	// c.assignUserToChatRoom()
@@ -41,17 +44,7 @@ func (c *client) SendMessage(ctx context.Context, id string, message *domain.Mes
 	_, err := c.dbc.Exec("INSERT INTO messages (id, text, sender_id, room_id, created_at) VALUES (?, ?, ?, ?, ?)", message.ID, message.Text, message.SenderID, message.RoomID, time.Now())
 	if err != nil {
 		log.Println(err)
-		return err
-	}
-
-	return nil
-}
-
-func (c *client) assignUserToChatRoom(user *domain.User, chatroom *domain.ChatRoom) error {
-	_, err := c.dbc.Exec("INSERT INTO room_user (room_id, user_id) VALUES (?, ?)", chatroom.ID, user.ID)
-	if err != nil {
-		log.Println(err)
-		return err
+		return fmt.Errorf("failed to execute database update: %w", err)
 	}
 
 	return nil
@@ -60,19 +53,27 @@ func (c *client) assignUserToChatRoom(user *domain.User, chatroom *domain.ChatRo
 func (c *client) ListChatRoom(ctx context.Context) ([]*domain.ChatRoom, error) {
 	rows, err := c.dbc.Query("SELECT id, name FROM chatrooms")
 	if err != nil {
-		return nil, nil
+		return nil, err
 	}
 
 	defer rows.Close()
 
+	return scanChatRooms(rows)
+}
+
+func scanChatRooms(rows *sql.Rows) ([]*domain.ChatRoom, error) {
 	chatRooms := make([]*domain.ChatRoom, 0)
+
 	for rows.Next() {
 		var chatRoom domain.ChatRoom
 		if err := rows.Scan(&chatRoom.ID, &chatRoom.Name); err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to scan rows: %w", err)
 		}
-
 		chatRooms = append(chatRooms, &chatRoom)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
 	}
 
 	return chatRooms, nil
@@ -81,12 +82,12 @@ func (c *client) ListChatRoom(ctx context.Context) ([]*domain.ChatRoom, error) {
 func (c *client) GetChatroom(ctx context.Context, id string) (*domain.ChatRoom, error) {
 	var chatRoom domain.ChatRoom
 	if err := c.dbc.QueryRow("SELECT id, name FROM chatrooms WHERE id = ?", id).Scan(&chatRoom.ID, &chatRoom.Name); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to scan row data: %w", err)
 	}
 
 	rows, err := c.dbc.Query("SELECT name FROM users INNER JOIN room_user ON users.id = room_user.user_id WHERE room_user.room_id = ?", id)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to execute query: %w", err)
 	}
 
 	defer rows.Close()
@@ -95,10 +96,14 @@ func (c *client) GetChatroom(ctx context.Context, id string) (*domain.ChatRoom, 
 	for rows.Next() {
 		var user string
 		if err := rows.Scan(&user); err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to scan user row: %w", err)
 		}
 
 		users = append(users, user)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
 	}
 
 	chatRoom.Users = users
@@ -107,10 +112,9 @@ func (c *client) GetChatroom(ctx context.Context, id string) (*domain.ChatRoom, 
 }
 
 func (c *client) GetChatroomMessages(ctx context.Context, id string) ([]*domain.Message, error) {
-
 	rows, err := c.dbc.Query("SELECT id, text, sender_id, room_id, created_at FROM messages WHERE room_id = ?", id)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to execute query: %w", err)
 	}
 
 	defer rows.Close()
@@ -119,48 +123,23 @@ func (c *client) GetChatroomMessages(ctx context.Context, id string) ([]*domain.
 	for rows.Next() {
 		var message domain.Message
 		if err := rows.Scan(&message.ID, &message.Text, &message.SenderID, &message.RoomID, &message.CreatedAt); err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to scan message row: %w", err)
 		}
 
 		messages = append(messages, &message)
 	}
 
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
 	return messages, nil
-}
-
-func (c *client) createChatRoom(name string) error {
-
-	// Ensure chat room name is not blank
-	if name == "" {
-		return errors.New("Chat room name cannot be blank")
-	}
-
-	ID := uuid.New().String()
-
-	// Check if chat room with the same name exists
-	var existingRoom domain.ChatRoom
-	err := c.dbc.QueryRow("SELECT id, name FROM chatrooms WHERE name = ?", name).Scan(&existingRoom.ID, &existingRoom.Name)
-	if err != nil && err != sql.ErrNoRows {
-		return errors.New("Database error occured")
-	}
-
-	if existingRoom.Name != "" {
-		return errors.New("Chat room with this name already exists")
-	}
-
-	_, err = c.dbc.Exec("INSERT INTO chatrooms (id, name) VALUES (?, ?)", ID, name)
-	if err != nil {
-		return errors.New("could not create new chatroom")
-	}
-
-	return nil
 }
 
 var jwtKey = []byte(os.Getenv("JWT_SECRET"))
 
 const (
-	tokenDuration     = 60 * time.Minute
-	tokenRefreshLimit = 10 * time.Minute
+	tokenDuration = 60 * time.Minute
 )
 
 func (c *client) LoginUser(ctx context.Context, email string, password string) (string, error) {
@@ -171,7 +150,7 @@ func (c *client) LoginUser(ctx context.Context, email string, password string) (
 
 	// Check password
 	if err := bcrypt.CompareHashAndPassword([]byte(storedUser.Password), []byte(password)); err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to scan row: %w", err)
 	}
 
 	expirationTime := time.Now().Add(tokenDuration)
@@ -184,17 +163,16 @@ func (c *client) LoginUser(ctx context.Context, email string, password string) (
 
 	tokenString, err := token.SignedString(jwtKey)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to get signed string from JWT token: %w", err)
 	}
 
 	return tokenString, nil
 }
 
 func (c *client) LogoutUser(ctx context.Context, token string) (bool, error) {
-
 	if _, err := c.dbc.Exec("INSERT INTO revoked_tokens (token) VALUES (?)", token); err != nil {
 		log.Println(err)
-		return false, err
+		return false, fmt.Errorf("failed to scan row: %w", err)
 	}
 
 	return true, nil

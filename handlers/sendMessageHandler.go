@@ -52,9 +52,11 @@ func (r *sendMessage) Handle(params service.SendMessageParams) middleware.Respon
 	log(ctx).Infof("sent messages %v", true)
 	return service.NewSendMessageCreated().WithPayload(&docsModel.SuccessResponse{
 		Success: true,
+		Message: "Message sent successfully to the chat room.",
 	})
 }
 
+// SendMessageHandler returns a handler for sending messages.
 func SendMessageHandler(rt *runtime.Runtime) service.SendMessageHandler {
 	return &sendMessage{rt: rt}
 }

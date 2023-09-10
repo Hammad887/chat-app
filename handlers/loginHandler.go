@@ -35,11 +35,12 @@ func (r *loginUser) Handle(params service.LoginParams) middleware.Responder {
 
 	log(ctx).Infof("got token %v", token)
 	return service.NewLoginOK().WithPayload(&docsModel.LoginSuccess{
-		Token: token,
+		Token:   token,
+		Success: true,
 	})
-
 }
 
+// LoginUserHandler returns a handler that manages user login.
 func LoginUserHandler(rt *runtime.Runtime) service.LoginHandler {
 	return &loginUser{rt: rt}
 }

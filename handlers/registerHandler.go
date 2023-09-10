@@ -26,6 +26,7 @@ func (r *registerUser) Handle(params service.RegisterUserParams) middleware.Resp
 	user := params.User
 
 	success, err := r.rt.Service().RegisterUser(context.Background(), &domain.User{
+		ID:       *user.ID,
 		Name:     *user.Name,
 		Email:    user.Email.String(),
 		Password: *user.Password,
@@ -49,10 +50,11 @@ func (r *registerUser) Handle(params service.RegisterUserParams) middleware.Resp
 	log(ctx).Infof("created user %v", success)
 	return service.NewRegisterUserCreated().WithPayload(&docsModel.SuccessResponse{
 		Success: success,
+		Message: "User registered successfully.",
 	})
-
 }
 
+// RegisterUserHandler returns a handler that manages user resistration.
 func RegisterUserHandler(rt *runtime.Runtime) service.RegisterUserHandler {
 	return &registerUser{rt: rt}
 }
