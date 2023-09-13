@@ -41,6 +41,7 @@ func (r *loginUser) Handle(params service.LoginParams) middleware.Responder {
 
 }
 
+// LoginUserHandler returns a handler that manages user login.
 func LoginUserHandler(rt *runtime.Runtime) service.LoginHandler {
 	return &loginUser{rt: rt}
 }
