@@ -18,7 +18,7 @@ type client struct {
 }
 
 // NewClient creates a configured database client.
-func NewClient(option db.Option) (db.DataStore, error) {
+func NewClient(_ db.Option) (db.DataStore, error) {
 	ctx := context.Background()
 
 	username := viper.GetString(config.MySQLDBUsername)

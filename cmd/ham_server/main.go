@@ -1,6 +1,8 @@
 package main
 
 import (
+	"os"
+
 	"github.com/go-openapi/loads"
 	"github.com/sirupsen/logrus"
 
@@ -32,11 +34,16 @@ func main() {
 	server = restapi.NewServer(api)
 	server.Port = 8080
 
-	defer server.Shutdown()
+	defer func() {
+		if err := server.Shutdown(); err != nil {
+			log.Printf("Error shutting down the server: %s", err)
+		}
+	}()
 
 	server.ConfigureAPI()
 
 	if err := server.Serve(); err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		os.Exit(1)
 	}
 }

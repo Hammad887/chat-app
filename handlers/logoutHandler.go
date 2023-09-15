@@ -40,7 +40,7 @@ func (r *logoutUser) Handle(params service.LogoutParams) middleware.Responder {
 
 }
 
-// LogoutUserHandler returns a handler that manages user logout.
+// LogoutUserHandler creates and returns a handler for logging out users using the provided runtime.
 func LogoutUserHandler(rt *runtime.Runtime) service.LogoutHandler {
 	return &logoutUser{rt: rt}
 }

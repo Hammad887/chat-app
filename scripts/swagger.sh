@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Directory check and creation
-if [ ! -d "docs" ]; then
-  mkdir docs 
+if [ ! -d "gen" ]; then
+  mkdir gen 
 fi
 
-swagger docserate server -t docs --exclude-main
-swagger docserate client -t docs
+swagger generate server -t gen --exclude-main
+swagger generate client -t gen

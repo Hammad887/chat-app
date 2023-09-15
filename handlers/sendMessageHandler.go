@@ -55,7 +55,7 @@ func (r *sendMessage) Handle(params service.SendMessageParams) middleware.Respon
 	})
 }
 
-// SendMessageHandler returns a handler for sending messages.
+// SendMessageHandler creates and returns a handler for sending messages using the provided runtime.
 func SendMessageHandler(rt *runtime.Runtime) service.SendMessageHandler {
 	return &sendMessage{rt: rt}
 }

@@ -22,7 +22,7 @@ func NewRuntime() (*Runtime, error) {
 	if err != nil {
 		return nil, wraperrors.Wrap(err, "failed to connect with database")
 	}
-	return &Runtime{service: service.NewService(&client)}, nil
+	return &Runtime{dbc: client, service: service.NewService(&client)}, nil
 }
 
 // Service return  service layer object
