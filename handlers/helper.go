@@ -1,23 +1,23 @@
 package handlers
 
 import (
-	docsModel "github.com/Hammad887/chat-app/gen/models"
+	genModel "github.com/Hammad887/chat-app/gen/models"
 	domain "github.com/Hammad887/chat-app/models"
 )
 
-func asChatroomResponse(chatroom *domain.ChatRoom) *docsModel.Chatroom {
-	return &docsModel.Chatroom{
+func asChatroomResponse(chatroom *domain.ChatRoom) *genModel.Chatroom {
+	return &genModel.Chatroom{
 		ID:    &chatroom.ID,
 		Name:  &chatroom.Name,
 		Users: chatroom.Users,
 	}
 }
 
-func asChatroomsResponse(chatrooms []*domain.ChatRoom) []*docsModel.Chatroom {
-	returnedChatrooms := make([]*docsModel.Chatroom, 0)
+func asChatroomsResponse(chatrooms []*domain.ChatRoom) []*genModel.Chatroom {
+	returnedChatrooms := make([]*genModel.Chatroom, 0)
 
 	for _, chatroom := range chatrooms {
-		returnedChatrooms = append(returnedChatrooms, &docsModel.Chatroom{
+		returnedChatrooms = append(returnedChatrooms, &genModel.Chatroom{
 			ID:    &chatroom.ID,
 			Name:  &chatroom.Name,
 			Users: chatroom.Users,
@@ -26,11 +26,11 @@ func asChatroomsResponse(chatrooms []*domain.ChatRoom) []*docsModel.Chatroom {
 	return returnedChatrooms
 }
 
-func asMessagesResponse(messages []*domain.Message) []*docsModel.Message {
-	returnedMessages := make([]*docsModel.Message, 0)
+func asMessagesResponse(messages []*domain.Message) []*genModel.Message {
+	returnedMessages := make([]*genModel.Message, 0)
 
 	for _, message := range messages {
-		returnedMessages = append(returnedMessages, &docsModel.Message{
+		returnedMessages = append(returnedMessages, &genModel.Message{
 			CreatedAt: message.CreatedAt,
 			ID:        message.ID,
 			SenderID:  &message.SenderID,

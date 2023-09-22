@@ -12,6 +12,6 @@ func NewCustomHandler(api *operations.ChatroomAPI, rt *runtime.Runtime) {
 	api.ServiceLogoutHandler = LogoutUserHandler(rt)
 	api.ServiceGetAllChatroomsHandler = GetAllChatroomsHandler(rt)
 	api.ServiceGetChatroomHandler = GetChatroomHandler(rt)
-	api.ServiceSendMessageHandler = SendMessageHandler(rt)
+	api.ServiceSaveMessageHandler = SaveMessageHandler(rt)
 	api.ServiceGetAllMessagesHandler = GetChatroomMessagesHandler(rt)
 }
