@@ -2,6 +2,8 @@ package mysql
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -14,15 +16,15 @@ import (
 	domain "github.com/Hammad887/chat-app/models"
 )
 
+// generateUserID creates a new UUID for user ID.
+func generateUserID() string {
+	return uuid.New().String()
+}
+
 func (c *client) RegisterUser(ctx context.Context, user *domain.User) (bool, error) {
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
-	if err != nil {
-		return false, fmt.Errorf("failed to hash password: %w", err)
-	}
+	user.ID = generateUserID()
 
-	user.ID = uuid.New().String()
-
-	if _, err := c.dbc.Exec("INSERT INTO users (id, name, email, password) VALUES (?, ?, ?, ?)", user.ID, user.Name, user.Email, string(hashedPassword)); err != nil {
+	if _, err := c.dbc.Exec("INSERT INTO users (id, name, email, password) VALUES (?, ?, ?, ?)", user.ID, user.Name, user.Email, user.Password); err != nil {
 		return false, fmt.Errorf("failed to execute database insert: %w", err)
 	}
 
@@ -30,8 +32,7 @@ func (c *client) RegisterUser(ctx context.Context, user *domain.User) (bool, err
 	return true, nil
 }
 
-func (c *client) SendMessage(ctx context.Context, id string, message *domain.Message) error {
-
+func (c *client) SaveMessage(ctx context.Context, id string, message *domain.Message) error {
 	message.ID = uuid.New().String()
 
 	// c.assignUserToChatRoom()
@@ -45,29 +46,15 @@ func (c *client) SendMessage(ctx context.Context, id string, message *domain.Mes
 	return nil
 }
 
-func (c *client) ListChatRoom(_ context.Context) ([]*domain.ChatRoom, error) {
+func (c *client) ListChatRoom(ctx context.Context) ([]*domain.ChatRoom, error) {
 	rows, err := c.dbc.Query("SELECT id, name FROM chatrooms")
 	if err != nil {
-		return nil, fmt.Errorf("failed to execute query: %w", err)
+		return nil, err
 	}
 
 	defer rows.Close()
 
-	chatRooms := make([]*domain.ChatRoom, 0)
-	for rows.Next() {
-		var chatRoom domain.ChatRoom
-		if err := rows.Scan(&chatRoom.ID, &chatRoom.Name); err != nil {
-			return nil, fmt.Errorf("failed to scan rows: %w", err)
-		}
-
-		chatRooms = append(chatRooms, &chatRoom)
-	}
-
-	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("error encountered during row scanning: %w", err)
-	}
-
-	return chatRooms, nil
+	return scanChatRooms(rows)
 }
 
 func (c *client) GetChatroom(ctx context.Context, id string) (*domain.ChatRoom, error) {
@@ -76,34 +63,10 @@ func (c *client) GetChatroom(ctx context.Context, id string) (*domain.ChatRoom, 
 		return nil, fmt.Errorf("failed to scan row data: %w", err)
 	}
 
-	rows, err := c.dbc.Query("SELECT name FROM users INNER JOIN room_user ON users.id = room_user.user_id WHERE room_user.room_id = ?", id)
-	if err != nil {
-		return nil, fmt.Errorf("failed to execute query: %w", err)
-	}
-
-	defer rows.Close()
-
-	users := make([]string, 0)
-	for rows.Next() {
-		var user string
-		if err := rows.Scan(&user); err != nil {
-			return nil, fmt.Errorf("failed to scan user row: %w", err)
-		}
-
-		users = append(users, user)
-	}
-
-	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("error encountered during row iteration: %w", err)
-	}
-
-	chatRoom.Users = users
-
 	return &chatRoom, nil
 }
 
 func (c *client) GetChatroomMessages(ctx context.Context, id string) ([]*domain.Message, error) {
-
 	rows, err := c.dbc.Query("SELECT id, text, sender_id, room_id, created_at FROM messages WHERE room_id = ?", id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute query: %w", err)
@@ -122,10 +85,38 @@ func (c *client) GetChatroomMessages(ctx context.Context, id string) ([]*domain.
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("error encountered during row iteration: %w", err)
+		return nil, err
 	}
 
 	return messages, nil
+}
+
+func (c *client) createChatRoom(name string) error {
+
+	// Ensure chat room name is not blank
+	if name == "" {
+		return errors.New("chat room name cannot be blank")
+	}
+
+	ID := uuid.New().String()
+
+	// Check if chat room with the same name exists
+	var existingRoom domain.ChatRoom
+	err := c.dbc.QueryRow("SELECT id, name FROM chatrooms WHERE name = ?", name).Scan(&existingRoom.ID, &existingRoom.Name)
+	if err != nil && err != sql.ErrNoRows {
+		return errors.New("database error occurred")
+	}
+
+	if existingRoom.Name != "" {
+		return errors.New("chat room with this name already exists")
+	}
+
+	_, err = c.dbc.Exec("INSERT INTO chatrooms (id, name) VALUES (?, ?)", ID, name)
+	if err != nil {
+		return errors.New("could not create new chatroom")
+	}
+
+	return nil
 }
 
 var jwtKey = []byte(os.Getenv("JWT_SECRET"))
@@ -137,7 +128,7 @@ const (
 func (c *client) LoginUser(ctx context.Context, email string, password string) (string, error) {
 	var storedUser domain.User
 	if err := c.dbc.QueryRow("SELECT id, name, email, password FROM users WHERE email = ?", email).Scan(&storedUser.ID, &storedUser.Name, &storedUser.Email, &storedUser.Password); err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to scan row: %w", err)
 	}
 
 	// Check password
@@ -162,11 +153,28 @@ func (c *client) LoginUser(ctx context.Context, email string, password string) (
 }
 
 func (c *client) LogoutUser(ctx context.Context, token string) (bool, error) {
-
 	if _, err := c.dbc.Exec("INSERT INTO revoked_tokens (token) VALUES (?)", token); err != nil {
 		log.Println(err)
 		return false, fmt.Errorf("failed to scan row: %w", err)
 	}
 
 	return true, nil
+}
+
+func scanChatRooms(rows *sql.Rows) ([]*domain.ChatRoom, error) {
+	chatRooms := make([]*domain.ChatRoom, 0)
+
+	for rows.Next() {
+		var chatRoom domain.ChatRoom
+		if err := rows.Scan(&chatRoom.ID, &chatRoom.Name); err != nil {
+			return nil, fmt.Errorf("failed to scan chatroom row: %w", err)
+		}
+		chatRooms = append(chatRooms, &chatRoom)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return chatRooms, nil
 }

@@ -50,6 +50,9 @@ func NewChatroomAPI(spec *loads.Document) *ChatroomAPI {
 		ServiceLogoutHandler: service.LogoutHandlerFunc(func(params service.LogoutParams) middleware.Responder {
 			return middleware.NotImplemented("operation service.Logout has not yet been implemented")
 		}),
+		ServiceSaveMessageHandler: service.SaveMessageHandlerFunc(func(params service.SaveMessageParams) middleware.Responder {
+			return middleware.NotImplemented("operation service.SaveMessage has not yet been implemented")
+		}),
 		ServiceGetAllChatroomsHandler: service.GetAllChatroomsHandlerFunc(func(params service.GetAllChatroomsParams) middleware.Responder {
 			return middleware.NotImplemented("operation service.GetAllChatrooms has not yet been implemented")
 		}),
@@ -61,9 +64,6 @@ func NewChatroomAPI(spec *loads.Document) *ChatroomAPI {
 		}),
 		ServiceRegisterUserHandler: service.RegisterUserHandlerFunc(func(params service.RegisterUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation service.RegisterUser has not yet been implemented")
-		}),
-		ServiceSendMessageHandler: service.SendMessageHandlerFunc(func(params service.SendMessageParams) middleware.Responder {
-			return middleware.NotImplemented("operation service.SendMessage has not yet been implemented")
 		}),
 	}
 }
@@ -105,6 +105,8 @@ type ChatroomAPI struct {
 	ServiceLoginHandler service.LoginHandler
 	// ServiceLogoutHandler sets the operation handler for the logout operation
 	ServiceLogoutHandler service.LogoutHandler
+	// ServiceSaveMessageHandler sets the operation handler for the save message operation
+	ServiceSaveMessageHandler service.SaveMessageHandler
 	// ServiceGetAllChatroomsHandler sets the operation handler for the get all chatrooms operation
 	ServiceGetAllChatroomsHandler service.GetAllChatroomsHandler
 	// ServiceGetAllMessagesHandler sets the operation handler for the get all messages operation
@@ -113,8 +115,6 @@ type ChatroomAPI struct {
 	ServiceGetChatroomHandler service.GetChatroomHandler
 	// ServiceRegisterUserHandler sets the operation handler for the register user operation
 	ServiceRegisterUserHandler service.RegisterUserHandler
-	// ServiceSendMessageHandler sets the operation handler for the send message operation
-	ServiceSendMessageHandler service.SendMessageHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -198,6 +198,9 @@ func (o *ChatroomAPI) Validate() error {
 	if o.ServiceLogoutHandler == nil {
 		unregistered = append(unregistered, "service.LogoutHandler")
 	}
+	if o.ServiceSaveMessageHandler == nil {
+		unregistered = append(unregistered, "service.SaveMessageHandler")
+	}
 	if o.ServiceGetAllChatroomsHandler == nil {
 		unregistered = append(unregistered, "service.GetAllChatroomsHandler")
 	}
@@ -209,9 +212,6 @@ func (o *ChatroomAPI) Validate() error {
 	}
 	if o.ServiceRegisterUserHandler == nil {
 		unregistered = append(unregistered, "service.RegisterUserHandler")
-	}
-	if o.ServiceSendMessageHandler == nil {
-		unregistered = append(unregistered, "service.SendMessageHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -309,6 +309,10 @@ func (o *ChatroomAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/logout"] = service.NewLogout(o.context, o.ServiceLogoutHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/chatrooms/{chatroom_id}/messages"] = service.NewSaveMessage(o.context, o.ServiceSaveMessageHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
@@ -325,10 +329,6 @@ func (o *ChatroomAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/user"] = service.NewRegisterUser(o.context, o.ServiceRegisterUserHandler)
-	if o.handlers["POST"] == nil {
-		o.handlers["POST"] = make(map[string]http.Handler)
-	}
-	o.handlers["POST"]["/chatrooms/{chatroom_id}/messages"] = service.NewSendMessage(o.context, o.ServiceSendMessageHandler)
 }
 
 // Serve creates a http handler to serve the API over HTTP

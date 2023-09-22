@@ -34,6 +34,8 @@ type ClientService interface {
 
 	Logout(params *LogoutParams, opts ...ClientOption) (*LogoutOK, error)
 
+	SaveMessage(params *SaveMessageParams, opts ...ClientOption) (*SaveMessageCreated, error)
+
 	GetAllChatrooms(params *GetAllChatroomsParams, opts ...ClientOption) (*GetAllChatroomsOK, *GetAllChatroomsNoContent, error)
 
 	GetAllMessages(params *GetAllMessagesParams, opts ...ClientOption) (*GetAllMessagesOK, *GetAllMessagesNoContent, error)
@@ -41,8 +43,6 @@ type ClientService interface {
 	GetChatroom(params *GetChatroomParams, opts ...ClientOption) (*GetChatroomOK, error)
 
 	RegisterUser(params *RegisterUserParams, opts ...ClientOption) (*RegisterUserCreated, error)
-
-	SendMessage(params *SendMessageParams, opts ...ClientOption) (*SendMessageCreated, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
@@ -121,6 +121,43 @@ func (a *Client) Logout(params *LogoutParams, opts ...ClientOption) (*LogoutOK, 
 	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
 	msg := fmt.Sprintf("unexpected success response for Logout: API contract not enforced by server. Client expected to get an error, but got: %T", result)
 	panic(msg)
+}
+
+/*
+SaveMessage send message to chatroom
+*/
+func (a *Client) SaveMessage(params *SaveMessageParams, opts ...ClientOption) (*SaveMessageCreated, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewSaveMessageParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "SaveMessage",
+		Method:             "POST",
+		PathPattern:        "/chatrooms/{chatroom_id}/messages",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http"},
+		Params:             params,
+		Reader:             &SaveMessageReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*SaveMessageCreated)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*SaveMessageDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -272,43 +309,6 @@ func (a *Client) RegisterUser(params *RegisterUserParams, opts ...ClientOption) 
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*RegisterUserDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
-}
-
-/*
-SendMessage send message to chatroom
-*/
-func (a *Client) SendMessage(params *SendMessageParams, opts ...ClientOption) (*SendMessageCreated, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewSendMessageParams()
-	}
-	op := &runtime.ClientOperation{
-		ID:                 "sendMessage",
-		Method:             "POST",
-		PathPattern:        "/chatrooms/{chatroom_id}/messages",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http"},
-		Params:             params,
-		Reader:             &SendMessageReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	}
-	for _, opt := range opts {
-		opt(op)
-	}
-
-	result, err := a.transport.Submit(op)
-	if err != nil {
-		return nil, err
-	}
-	success, ok := result.(*SendMessageCreated)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	unexpectedSuccess := result.(*SendMessageDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
