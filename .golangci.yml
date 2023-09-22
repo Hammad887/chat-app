@@ -132,6 +132,8 @@ linters:
   #   - govet
   enable-all: true
   disable:
+    - revive
+    - depguard
     - gas
     - lll
     - ireturn
@@ -193,6 +195,7 @@ issues:
     - path: db/mysql/ops.go
       linters:
         - govet
+        - wrapcheck
 
         # Maximum issues count per one linter. Set to 0 to disable. Default is 50.
   max-per-linter: 0

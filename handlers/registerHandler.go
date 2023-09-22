@@ -50,8 +50,8 @@ func (r *registerUser) Handle(params service.RegisterUserParams) middleware.Resp
 	log(ctx).Infof("created user %v", success)
 	return service.NewRegisterUserCreated().WithPayload(&docsModel.SuccessResponse{
 		Success: success,
+		Message: "User registered successfully.",
 	})
-
 }
 
 // RegisterUserHandler creates and returns a handler for registering users using the provided runtime.

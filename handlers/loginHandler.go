@@ -38,7 +38,6 @@ func (r *loginUser) Handle(params service.LoginParams) middleware.Responder {
 		Token:   token,
 		Success: true,
 	})
-
 }
 
 // LoginUserHandler returns a handler that manages user login.

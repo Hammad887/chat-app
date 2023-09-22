@@ -14,7 +14,7 @@ func asChatroomResponse(chatroom *domain.ChatRoom) *docsModel.Chatroom {
 }
 
 func asChatroomsResponse(chatrooms []*domain.ChatRoom) []*docsModel.Chatroom {
-	var returnedChatrooms []*docsModel.Chatroom
+	returnedChatrooms := make([]*docsModel.Chatroom, 0)
 
 	for _, chatroom := range chatrooms {
 		returnedChatrooms = append(returnedChatrooms, &docsModel.Chatroom{
@@ -27,7 +27,7 @@ func asChatroomsResponse(chatrooms []*domain.ChatRoom) []*docsModel.Chatroom {
 }
 
 func asMessagesResponse(messages []*domain.Message) []*docsModel.Message {
-	var returnedMessages []*docsModel.Message
+	returnedMessages := make([]*docsModel.Message, 0)
 
 	for _, message := range messages {
 		returnedMessages = append(returnedMessages, &docsModel.Message{

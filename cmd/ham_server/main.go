@@ -1,8 +1,6 @@
 package main
 
 import (
-	"os"
-
 	"github.com/go-openapi/loads"
 	"github.com/sirupsen/logrus"
 
@@ -44,6 +42,6 @@ func main() {
 
 	if err := server.Serve(); err != nil {
 		log.Println(err)
-		os.Exit(1)
+		panic("Error occurred")
 	}
 }

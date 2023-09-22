@@ -2,8 +2,7 @@ package service
 
 import (
 	"context"
-
-	wraperrors "github.com/pkg/errors"
+	"fmt"
 
 	"github.com/Hammad887/chat-app/models"
 )
@@ -12,7 +11,7 @@ import (
 func (s *service) GetChatroom(ctx context.Context, id string) (*models.ChatRoom, error) {
 	chatroom, err := s.db.GetChatroom(ctx, id)
 	if err != nil {
-		return nil, wraperrors.Wrap(err, "failed to find user with given id")
+		return nil, fmt.Errorf("failed to find user with given id: %w", err)
 	}
 
 	return chatroom, nil
@@ -22,7 +21,7 @@ func (s *service) GetChatroom(ctx context.Context, id string) (*models.ChatRoom,
 func (s *service) GetChatroomMessages(ctx context.Context, id string) ([]*models.Message, error) {
 	messages, err := s.db.GetChatroomMessages(ctx, id)
 	if err != nil {
-		return nil, wraperrors.Wrap(err, "failed to find user with given id")
+		return nil, fmt.Errorf("failed to find user with given id: %w", err)
 	}
 
 	return messages, nil
@@ -32,7 +31,7 @@ func (s *service) GetChatroomMessages(ctx context.Context, id string) ([]*models
 func (s *service) ListChatRoom(ctx context.Context) ([]*models.ChatRoom, error) {
 	chatrooms, err := s.db.ListChatRoom(ctx)
 	if err != nil {
-		return nil, wraperrors.Wrap(err, "failed to find user with given id")
+		return nil, fmt.Errorf("failed to find user with given id: %w", err)
 	}
 
 	return chatrooms, nil
@@ -42,7 +41,7 @@ func (s *service) ListChatRoom(ctx context.Context) ([]*models.ChatRoom, error) 
 func (s *service) LoginUser(ctx context.Context, email string, password string) (string, error) {
 	token, err := s.db.LoginUser(ctx, email, password)
 	if err != nil {
-		return "", wraperrors.Wrap(err, "failed to find user with given id")
+		return "", fmt.Errorf("failed to find user with given id: %w", err)
 	}
 
 	return token, nil
@@ -52,7 +51,7 @@ func (s *service) LoginUser(ctx context.Context, email string, password string) 
 func (s *service) LogoutUser(ctx context.Context, token string) (bool, error) {
 	success, err := s.db.LogoutUser(ctx, token)
 	if err != nil {
-		return false, wraperrors.Wrap(err, "failed to find user with given id")
+		return false, fmt.Errorf("failed to find user with given id: %w", err)
 	}
 
 	return success, nil
@@ -62,7 +61,7 @@ func (s *service) LogoutUser(ctx context.Context, token string) (bool, error) {
 func (s *service) RegisterUser(ctx context.Context, user *models.User) (bool, error) {
 	success, err := s.db.RegisterUser(ctx, user)
 	if err != nil {
-		return false, wraperrors.Wrap(err, "failed to find user with given id")
+		return false, fmt.Errorf("failed to find user with given id: %w", err)
 	}
 
 	return success, nil
@@ -72,7 +71,7 @@ func (s *service) RegisterUser(ctx context.Context, user *models.User) (bool, er
 func (s *service) SendMessage(ctx context.Context, id string, message *models.Message) error {
 	err := s.db.SendMessage(ctx, id, message)
 	if err != nil {
-		return wraperrors.Wrap(err, "failed to find user with given id")
+		return fmt.Errorf("failed to find user with given id: %w", err)
 	}
 
 	return nil
