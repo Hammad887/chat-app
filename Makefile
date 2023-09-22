@@ -42,13 +42,13 @@ build:
 	bash ./scripts/build.sh
 
 db_start: db_stop
-	@docker run --name mysql_db-e MYSQL_ALLOW_EMPTY_PASSWORD=yes -p 3306:3306 -d mysql:latest
+	@docker run --name mysql_db -e MYSQL_ALLOW_EMPTY_PASSWORD=yes -p 3307:3306 -d mysql:latest
 
 db_prepare: db_start
-	@docker cp migration.sql mysql_db:migration.sql
+	@docker cp chat_app.sql mysql_db:chat_app.sql
 	@echo "Executing databases...wait for 15 seconds"
 	@sleep 15
-	@docker exec -i mysql_dbsh -c 'mysql -uroot < migration.sql'
+	@docker exec -i mysql_dbsh -c 'mysql -uroot < chat_app.sql'
 
 help:
 	@echo
