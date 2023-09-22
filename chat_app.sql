@@ -1,8 +1,9 @@
-CREATE USER 'newuser'@'localhost' IDENTIFIED BY 'password';
+-- CREATE USER 'newuser'@'localhost' IDENTIFIED BY 'password';
 CREATE DATABASE chatapp;
-GRANT ALL PRIVILEGES ON chatapp.* TO 'newuser'@'localhost';
-GRANT ALL PRIVILEGES ON your_database.* TO 'hammad'@'localhost';
+-- GRANT ALL PRIVILEGES ON chatapp.* TO 'newuser'@'localhost';
+-- GRANT ALL PRIVILEGES ON your_database.* TO 'hammad'@'localhost';
 FLUSH PRIVILEGES;
+USE chatapp;
 
 -- Create the chatrooms table
 CREATE TABLE IF NOT EXISTS chatrooms (

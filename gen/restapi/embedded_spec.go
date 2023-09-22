@@ -158,7 +158,7 @@ func init() {
         "tags": [
           "service"
         ],
-        "operationId": "sendMessage",
+        "operationId": "SaveMessage",
         "parameters": [
           {
             "name": "message",
@@ -722,7 +722,7 @@ func init() {
         "tags": [
           "service"
         ],
-        "operationId": "sendMessage",
+        "operationId": "SaveMessage",
         "parameters": [
           {
             "name": "message",

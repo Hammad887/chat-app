@@ -18,19 +18,19 @@ import (
 	"github.com/Hammad887/chat-app/gen/models"
 )
 
-// NewSendMessageParams creates a new SendMessageParams object
+// NewSaveMessageParams creates a new SaveMessageParams object
 //
 // There are no default values defined in the spec.
-func NewSendMessageParams() SendMessageParams {
+func NewSaveMessageParams() SaveMessageParams {
 
-	return SendMessageParams{}
+	return SaveMessageParams{}
 }
 
-// SendMessageParams contains all the bound params for the send message operation
+// SaveMessageParams contains all the bound params for the save message operation
 // typically these are obtained from a http.Request
 //
-// swagger:parameters sendMessage
-type SendMessageParams struct {
+// swagger:parameters SaveMessage
+type SaveMessageParams struct {
 
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
@@ -50,8 +50,8 @@ type SendMessageParams struct {
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
 // for simple values it will use straight method calls.
 //
-// To ensure default values, the struct must have been initialized with NewSendMessageParams() beforehand.
-func (o *SendMessageParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
+// To ensure default values, the struct must have been initialized with NewSaveMessageParams() beforehand.
+func (o *SaveMessageParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
 	var res []error
 
 	o.HTTPRequest = r
@@ -95,7 +95,7 @@ func (o *SendMessageParams) BindRequest(r *http.Request, route *middleware.Match
 }
 
 // bindChatroomID binds and validates parameter ChatroomID from path.
-func (o *SendMessageParams) bindChatroomID(rawData []string, hasKey bool, formats strfmt.Registry) error {
+func (o *SaveMessageParams) bindChatroomID(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]

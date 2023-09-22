@@ -14,7 +14,7 @@ import (
 	"github.com/Hammad887/chat-app/gen/restapi/operations/service"
 )
 
-//go:generate swagger generate server --target ../../gen --name Chatroom --spec ../../swagger.yaml --principal interface{} --exclude-main
+//go:generate swagger generate server --target ..\..\gen --name Chatroom --spec ..\..\swagger.yaml --principal interface{} --exclude-main
 
 func configureFlags(api *operations.ChatroomAPI) {
 	// api.CommandLineOptionsGroups = []swag.CommandLineOptionsGroup{ ... }
@@ -48,6 +48,11 @@ func configureAPI(api *operations.ChatroomAPI) http.Handler {
 			return middleware.NotImplemented("operation service.Logout has not yet been implemented")
 		})
 	}
+	if api.ServiceSaveMessageHandler == nil {
+		api.ServiceSaveMessageHandler = service.SaveMessageHandlerFunc(func(params service.SaveMessageParams) middleware.Responder {
+			return middleware.NotImplemented("operation service.SaveMessage has not yet been implemented")
+		})
+	}
 	if api.ServiceGetAllChatroomsHandler == nil {
 		api.ServiceGetAllChatroomsHandler = service.GetAllChatroomsHandlerFunc(func(params service.GetAllChatroomsParams) middleware.Responder {
 			return middleware.NotImplemented("operation service.GetAllChatrooms has not yet been implemented")
@@ -66,11 +71,6 @@ func configureAPI(api *operations.ChatroomAPI) http.Handler {
 	if api.ServiceRegisterUserHandler == nil {
 		api.ServiceRegisterUserHandler = service.RegisterUserHandlerFunc(func(params service.RegisterUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation service.RegisterUser has not yet been implemented")
-		})
-	}
-	if api.ServiceSendMessageHandler == nil {
-		api.ServiceSendMessageHandler = service.SendMessageHandlerFunc(func(params service.SendMessageParams) middleware.Responder {
-			return middleware.NotImplemented("operation service.SendMessage has not yet been implemented")
 		})
 	}
 

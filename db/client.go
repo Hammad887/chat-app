@@ -14,7 +14,7 @@ type DataStore interface {
 	RegisterUser(ctx context.Context, user *models.User) (bool, error)
 	LoginUser(ctx context.Context, email string, password string) (string, error)
 	LogoutUser(ctx context.Context, token string) (bool, error)
-	SendMessage(ctx context.Context, id string, message *models.Message) error
+	SaveMessage(ctx context.Context, id string, message *models.Message) error
 }
 
 // Option holds configuration for data store clients

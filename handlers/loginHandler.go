@@ -6,7 +6,7 @@ import (
 
 	runtime "github.com/Hammad887/chat-app"
 	domainErr "github.com/Hammad887/chat-app/errors"
-	docsModel "github.com/Hammad887/chat-app/gen/models"
+	genModel "github.com/Hammad887/chat-app/gen/models"
 	"github.com/Hammad887/chat-app/gen/restapi/operations/service"
 	"github.com/go-openapi/runtime/middleware"
 )
@@ -34,7 +34,7 @@ func (r *loginUser) Handle(params service.LoginParams) middleware.Responder {
 	}
 
 	log(ctx).Infof("got token %v", token)
-	return service.NewLoginOK().WithPayload(&docsModel.LoginSuccess{
+	return service.NewLoginOK().WithPayload(&genModel.LoginSuccess{
 		Token:   token,
 		Success: true,
 	})
