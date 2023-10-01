@@ -7,7 +7,7 @@ services:
     #   - default
     restart: always
     ports:
-      - "3307:3306"
+      - "3306:3306"
     volumes:
       - /var/lib/mysql:/var/lib/mysql
     environment:

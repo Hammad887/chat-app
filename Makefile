@@ -48,7 +48,7 @@ db_prepare: db_start
 	@docker cp chat_app.sql mysql_db:chat_app.sql
 	@echo "Executing databases...wait for 15 seconds"
 	@sleep 15
-	@docker exec -i mysql_dbsh -c 'mysql -uroot < chat_app.sql'
+	@docker exec -i mysql_db sh -c 'mysql -uroot < chat_app.sql'
 
 help:
 	@echo

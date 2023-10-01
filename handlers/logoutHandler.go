@@ -6,7 +6,7 @@ import (
 
 	runtime "github.com/Hammad887/chat-app"
 	domainErr "github.com/Hammad887/chat-app/errors"
-	docsModel "github.com/Hammad887/chat-app/gen/models"
+	genModel "github.com/Hammad887/chat-app/gen/models"
 	"github.com/Hammad887/chat-app/gen/restapi/operations/service"
 	"github.com/go-openapi/runtime/middleware"
 )
@@ -33,14 +33,13 @@ func (r *logoutUser) Handle(params service.LogoutParams) middleware.Responder {
 	}
 
 	log(ctx).Infof("got token %v", token)
-	return service.NewLogoutOK().WithPayload(&docsModel.LogoutSuccess{
+	return service.NewLogoutOK().WithPayload(&genModel.LogoutSuccess{
 		Success: success,
 		Token:   *token.Token,
 	})
-
 }
 
-// LogoutUserHandler creates and returns a handler for logging out users using the provided runtime.
+// LogoutUserHandler returns a handler that manages user logout.
 func LogoutUserHandler(rt *runtime.Runtime) service.LogoutHandler {
 	return &logoutUser{rt: rt}
 }

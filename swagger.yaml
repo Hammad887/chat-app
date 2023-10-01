@@ -128,7 +128,7 @@ paths:
 
   /chatrooms/{chatroom_id}/messages:
     post:
-      operationId: "sendMessage"
+      operationId: "SaveMessage"
       description: "send message to chatroom"
       tags:
         - service

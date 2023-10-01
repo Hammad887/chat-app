@@ -8,7 +8,7 @@ import (
 
 	runtime "github.com/Hammad887/chat-app"
 	domainErr "github.com/Hammad887/chat-app/errors"
-	docsModel "github.com/Hammad887/chat-app/gen/models"
+	genModel "github.com/Hammad887/chat-app/gen/models"
 	"github.com/Hammad887/chat-app/gen/restapi/operations/service"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
@@ -26,14 +26,14 @@ func (r *ListChatRoom) Handle(params service.GetAllChatroomsParams) middleware.R
 	if errors.Is(err, domainErr.ErrConflict) {
 		log(context.Background()).Errorf("user with given email is already exist in database", err)
 
-		return service.NewGetAllChatroomsNotFound().WithPayload(&docsModel.Error{
+		return service.NewGetAllChatroomsNotFound().WithPayload(&genModel.Error{
 			Code:    swag.String(fmt.Sprintf("%v", http.StatusConflict)),
 			Message: swag.String(err.Error()),
 		})
 	} else if err != nil {
 		log(ctx).Errorf("failed to register new user", err)
 
-		return service.NewGetAllChatroomsDefault(http.StatusInternalServerError).WithPayload(&docsModel.Error{
+		return service.NewGetAllChatroomsDefault(http.StatusInternalServerError).WithPayload(&genModel.Error{
 			Code:    swag.String(fmt.Sprintf("%v", http.StatusInternalServerError)),
 			Message: swag.String(err.Error()),
 		})
@@ -43,7 +43,7 @@ func (r *ListChatRoom) Handle(params service.GetAllChatroomsParams) middleware.R
 	return service.NewGetAllChatroomsOK().WithPayload(asChatroomsResponse(chatrooms))
 }
 
-// GetAllChatroomsHandler creates and returns a handler for fetching all chat rooms using the provided runtime.
+// GetAllChatroomsHandler returns a handler for retrieving all the chat rooms.
 func GetAllChatroomsHandler(rt *runtime.Runtime) service.GetAllChatroomsHandler {
 	return &ListChatRoom{rt: rt}
 }
