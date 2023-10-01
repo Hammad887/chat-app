@@ -29,7 +29,7 @@ services:
       # MYSQL_DB_NAME: userdb
       # MYSQL_DB_USERNAME: root
       # MYSQL_DB_PASSWORD: password
-    image: ham_dev:latest
+    image: chat_app_dev:latest
     ports:
       - "8000:8080"
     links:
