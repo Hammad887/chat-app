@@ -47,7 +47,7 @@ func (c *client) SaveMessage(ctx context.Context, id string, message *domain.Mes
 }
 
 func (c *client) ListChatRoom(ctx context.Context) ([]*domain.ChatRoom, error) {
-	rows, err := c.dbc.Query("SELECT id, name FROM chatrooms")
+	rows, err := c.dbc.Query("SELECT c.id, c.name, ru.user_id FROM chatrooms c JOIN room_user ru ON c.id = ru.room_id ")
 	if err != nil {
 		return nil, err
 	}
@@ -162,18 +162,33 @@ func (c *client) LogoutUser(ctx context.Context, token string) (bool, error) {
 }
 
 func scanChatRooms(rows *sql.Rows) ([]*domain.ChatRoom, error) {
-	chatRooms := make([]*domain.ChatRoom, 0)
+	chatRoomMap := make(map[string]*domain.ChatRoom)
 
 	for rows.Next() {
 		var chatRoom domain.ChatRoom
-		if err := rows.Scan(&chatRoom.ID, &chatRoom.Name); err != nil {
+		var userId string
+
+		if err := rows.Scan(&chatRoom.ID, &chatRoom.Name, &userId); err != nil {
 			return nil, fmt.Errorf("failed to scan chatroom row: %w", err)
 		}
-		chatRooms = append(chatRooms, &chatRoom)
+
+		if existingChatRoom, exists := chatRoomMap[chatRoom.ID]; exists {
+			existingChatRoom.Users = append(existingChatRoom.Users, userId)
+		} else {
+			chatRoom.Users = append(chatRoom.Users, userId)
+			chatRoomMap[chatRoom.ID] = &chatRoom
+		}
 	}
 
 	if err := rows.Err(); err != nil {
 		return nil, err
+	}
+
+	defer rows.Close()
+
+	chatRooms := make([]*domain.ChatRoom, 0, len(chatRoomMap))
+	for _, chatRoom := range chatRoomMap {
+		chatRooms = append(chatRooms, chatRoom)
 	}
 
 	return chatRooms, nil
