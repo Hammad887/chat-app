@@ -47,6 +47,32 @@ paths:
             type: string
           description: Server error
 
+  /create-chat-room:
+    post:
+      description: 'Creates a new chatroom with the provided name'
+      tags:
+        - service
+      operationId: CreateChatRoom
+      consumes:
+        - "application/json"
+      parameters:
+        - name: 'chatroom'
+          in: 'body'
+          required: true
+          description: 'create chatroom Payload'
+          schema:
+            $ref: '#/definitions/ChatroomInfo'
+      responses:
+        200:
+          description: Successfully created a chatroom
+          schema:
+            $ref: '#/definitions/ChatroomSuccess'
+        401:
+          $ref: '#/responses/401'
+        409:
+          $ref: '#/responses/409'
+        default:
+          $ref: '#/responses/500'
   /logout:
     post:
       operationId: 'Logout'
@@ -270,6 +296,19 @@ definitions:
       password:
         type: string
   LoginSuccess:
+    type: object
+    properties:
+      success:
+        type: boolean
+      token:
+        type: string
+  ChatroomInfo:
+    type: object
+    required: [name]
+    properties:
+      name:
+        type: string
+  ChatroomSuccess:
     type: object
     properties:
       success:

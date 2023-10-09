@@ -30,6 +30,8 @@ type ClientOption func(*runtime.ClientOperation)
 
 // ClientService is the interface for Client methods
 type ClientService interface {
+	CreateChatRoom(params *CreateChatRoomParams, opts ...ClientOption) (*CreateChatRoomOK, error)
+
 	Login(params *LoginParams, opts ...ClientOption) (*LoginOK, error)
 
 	Logout(params *LogoutParams, opts ...ClientOption) (*LogoutOK, error)
@@ -45,6 +47,43 @@ type ClientService interface {
 	RegisterUser(params *RegisterUserParams, opts ...ClientOption) (*RegisterUserCreated, error)
 
 	SetTransport(transport runtime.ClientTransport)
+}
+
+/*
+CreateChatRoom Creates a new chatroom with the provided name
+*/
+func (a *Client) CreateChatRoom(params *CreateChatRoomParams, opts ...ClientOption) (*CreateChatRoomOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewCreateChatRoomParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "CreateChatRoom",
+		Method:             "POST",
+		PathPattern:        "/create-chat-room",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http"},
+		Params:             params,
+		Reader:             &CreateChatRoomReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*CreateChatRoomOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*CreateChatRoomDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*

@@ -14,6 +14,6 @@ COPY go.mod .
 
 COPY go.sum .
 
-RUN go build cmd/chat_app_server/main.go
+RUN go build cmd/chat_app_socket_server/main.go
 
 CMD ["./main"]
