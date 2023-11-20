@@ -59,8 +59,21 @@ func (c *client) ListChatRoom(ctx context.Context) ([]*domain.ChatRoom, error) {
 
 func (c *client) GetChatroom(ctx context.Context, id string) (*domain.ChatRoom, error) {
 	var chatRoom domain.ChatRoom
-	if err := c.dbc.QueryRow("SELECT id, name FROM chatrooms WHERE id = ?", id).Scan(&chatRoom.ID, &chatRoom.Name); err != nil {
-		return nil, fmt.Errorf("failed to scan row data: %w", err)
+
+	rows, err := c.dbc.Query("SELECT c.id, c.name, ru.user_id FROM chatrooms c JOIN room_user ru ON c.id = ru.room_id WHERE c.id = ?", id)
+	if err != nil {
+		return nil, err
+	}
+	userIDs := make(map[string]struct{})
+
+	// Iterate through the rows and scan data into the struct and user IDs
+	for rows.Next() {
+		var userID string
+		if err := rows.Scan(&chatRoom.ID, &chatRoom.Name, &userID); err != nil {
+			log.Fatal(err)
+		}
+		chatRoom.Users = append(chatRoom.Users, userID)
+		userIDs[userID] = struct{}{}
 	}
 
 	return &chatRoom, nil

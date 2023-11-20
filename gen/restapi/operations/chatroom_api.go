@@ -44,6 +44,9 @@ func NewChatroomAPI(spec *loads.Document) *ChatroomAPI {
 
 		JSONProducer: runtime.JSONProducer(),
 
+		ServiceCreateChatRoomHandler: service.CreateChatRoomHandlerFunc(func(params service.CreateChatRoomParams) middleware.Responder {
+			return middleware.NotImplemented("operation service.CreateChatRoom has not yet been implemented")
+		}),
 		ServiceLoginHandler: service.LoginHandlerFunc(func(params service.LoginParams) middleware.Responder {
 			return middleware.NotImplemented("operation service.Login has not yet been implemented")
 		}),
@@ -101,6 +104,8 @@ type ChatroomAPI struct {
 	//   - application/json
 	JSONProducer runtime.Producer
 
+	// ServiceCreateChatRoomHandler sets the operation handler for the create chat room operation
+	ServiceCreateChatRoomHandler service.CreateChatRoomHandler
 	// ServiceLoginHandler sets the operation handler for the login operation
 	ServiceLoginHandler service.LoginHandler
 	// ServiceLogoutHandler sets the operation handler for the logout operation
@@ -192,6 +197,9 @@ func (o *ChatroomAPI) Validate() error {
 		unregistered = append(unregistered, "JSONProducer")
 	}
 
+	if o.ServiceCreateChatRoomHandler == nil {
+		unregistered = append(unregistered, "service.CreateChatRoomHandler")
+	}
 	if o.ServiceLoginHandler == nil {
 		unregistered = append(unregistered, "service.LoginHandler")
 	}
@@ -301,6 +309,10 @@ func (o *ChatroomAPI) initHandlerCache() {
 		o.handlers = make(map[string]map[string]http.Handler)
 	}
 
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/create-chat-room"] = service.NewCreateChatRoom(o.context, o.ServiceCreateChatRoomHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}

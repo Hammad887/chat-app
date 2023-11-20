@@ -6,3 +6,4 @@ bin/
 .vscode/
 *.exe
 *.exe~
+.DS_Store

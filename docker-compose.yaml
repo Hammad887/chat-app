@@ -15,23 +15,37 @@ services:
       MYSQL_DATABASE: "chatapp"
       MYSQL_USER: "newuser"
       MYSQL_PASSWORD: "password"
-      MYSQL_ROOT_HOST: '%' 
+      MYSQL_ROOT_HOST: '%'
 
   chatroom_app:
-    build: .
+    build:
+      context: .
+      dockerfile: dockerfile.chat_app_server
     container_name: chatroom_app
     depends_on:
       - db
     environment:
       HOST: 0.0.0.0
       PORT: 8080
-      # MYSQL_DB_HOSTS: mysql:3306
-      # MYSQL_DB_NAME: userdb
-      # MYSQL_DB_USERNAME: root
-      # MYSQL_DB_PASSWORD: password
     image: chat_app_dev:latest
     ports:
       - "8000:8080"
+    links:
+      - "db:database"
+
+  chatroom_websocket:
+    build:
+      context: .
+      dockerfile: dockerfile.chat_app_socket_server
+    container_name: chatroom_websocket
+    depends_on:
+      - db
+    environment:
+      HOST: 0.0.0.0
+      PORT: 8085
+    image: chat_app_websocket_dev:latest
+    ports:
+      - "8085:8080"
     links:
       - "db:database"
 

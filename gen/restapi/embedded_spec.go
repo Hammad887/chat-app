@@ -194,6 +194,46 @@ func init() {
         }
       }
     },
+    "/create-chat-room": {
+      "post": {
+        "description": "Creates a new chatroom with the provided name",
+        "consumes": [
+          "application/json"
+        ],
+        "tags": [
+          "service"
+        ],
+        "operationId": "CreateChatRoom",
+        "parameters": [
+          {
+            "description": "create chatroom Payload",
+            "name": "chatroom",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ChatroomInfo"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully created a chatroom",
+            "schema": {
+              "$ref": "#/definitions/ChatroomSuccess"
+            }
+          },
+          "401": {
+            "$ref": "#/responses/401"
+          },
+          "409": {
+            "$ref": "#/responses/409"
+          },
+          "default": {
+            "$ref": "#/responses/500"
+          }
+        }
+      }
+    },
     "/login": {
       "post": {
         "description": "Returns token for authorized User",
@@ -344,6 +384,28 @@ func init() {
           "items": {
             "type": "string"
           }
+        }
+      }
+    },
+    "ChatroomInfo": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "ChatroomSuccess": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "token": {
+          "type": "string"
         }
       }
     },
@@ -767,6 +829,55 @@ func init() {
         }
       }
     },
+    "/create-chat-room": {
+      "post": {
+        "description": "Creates a new chatroom with the provided name",
+        "consumes": [
+          "application/json"
+        ],
+        "tags": [
+          "service"
+        ],
+        "operationId": "CreateChatRoom",
+        "parameters": [
+          {
+            "description": "create chatroom Payload",
+            "name": "chatroom",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ChatroomInfo"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully created a chatroom",
+            "schema": {
+              "$ref": "#/definitions/ChatroomSuccess"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
+          "default": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
     "/login": {
       "post": {
         "description": "Returns token for authorized User",
@@ -926,6 +1037,28 @@ func init() {
           "items": {
             "type": "string"
           }
+        }
+      }
+    },
+    "ChatroomInfo": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "ChatroomSuccess": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "token": {
+          "type": "string"
         }
       }
     },
